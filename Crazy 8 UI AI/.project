@@ -20,4 +20,16 @@
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/AUDIO</name>
+			<type>2</type>
+			<location>/home/jhr/Programming/eclipse_workspace/Crazy 8 UI AI/RESOURCES/AUDIO</location>
+		</link>
+		<link>
+			<name>src/IMAGE</name>
+			<type>2</type>
+			<location>/home/jhr/Programming/eclipse_workspace/Crazy 8 UI AI/RESOURCES/IMAGE</location>
+		</link>
+	</linkedResources>
 </projectDescription>

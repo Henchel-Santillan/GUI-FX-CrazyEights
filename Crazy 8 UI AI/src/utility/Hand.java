@@ -1,18 +1,25 @@
 package utility;
 
+import javafx.scene.Group;
+
 public class Hand extends Pile1D {
 	
 	public static final int DEF_SIZE = 8;
 	
-	private final State state;
+	private final Group model;
 	
-	public Hand(State state) {
+	public Hand() {
 		super(DEF_SIZE);
-		this.state = state;
+		
+		model = new Group();
+		
+		for (int i = 0; i < this.card_set.size(); i++) {
+			model.getChildren().add(card_set.get(i).getModel());
+		}
 	}
 	
-	public State getState() {
-		return state;
+	public Group getModel() {
+		return model;
 	}
 	
 	public void sortBySuit() {
