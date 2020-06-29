@@ -1,27 +1,28 @@
 package utility;
 
-import javafx.scene.Group;
+import gui.HandModel;
 
 public class Hand extends Pile1D {
 	
 	public static final int DEF_SIZE = 8;
 	
-	private final Group model;
+	private final HandModel model;
 	
 	public Hand() {
 		super(DEF_SIZE);
 		
-		model = new Group();
-		
-		for (int i = 0; i < this.card_set.size(); i++) {
-			model.getChildren().add(card_set.get(i).getModel());
-		}
+		model = new HandModel();
 	}
 	
-	public Group getModel() {
+	public HandModel getModel() {
 		return model;
 	}
 	
+	public void add(Card card) {
+		this.card_set.add(card);
+		this.getModel().add(card.getModel());
+	}
+
 	public void sortBySuit() {
 		for (int i = 0; i < this.card_set.size(); i++) {
 			
@@ -34,6 +35,7 @@ public class Hand extends Pile1D {
 			}
 			
 			this.card_set.set(j + 1, key);
+			this.getModel().refresh(card_set);
 		}
 	}
 	
@@ -49,6 +51,7 @@ public class Hand extends Pile1D {
 			}
 			
 			this.card_set.set(j + 1, key);
+			this.getModel().refresh(card_set);
 		}
 	}
 	
@@ -65,6 +68,7 @@ public class Hand extends Pile1D {
 			}
 				
 			this.card_set.set(j + 1,  key);
+			this.getModel().refresh(card_set);
 		}
 	}
 }

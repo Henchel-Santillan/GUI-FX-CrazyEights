@@ -1,7 +1,6 @@
 package utility;
 
 import gui.CardModel;
-import javafx.scene.Group;
 
 public class Card {
 	
@@ -39,7 +38,10 @@ public class Card {
 		return state;
 	}
 	
-	//NOTE: tilt describes the 2D direction of the card relative to its face (faceup or facedown)
+	public CardModel getModel() {
+		return model;
+	}
+	
 	public boolean isFaceUp() {
 		return isFaceUp;
 	}
@@ -47,13 +49,4 @@ public class Card {
 	public void setFaceUp(boolean isFaceUp) {
 		this.isFaceUp = isFaceUp;
 	}
-	
-	public CardModel getModel() {
-		return model;
-	}
-	
-	/* Card class should have:
-	 * design effects apply methods (e.g. on_hover, image render, on click or press, on drag, etc.)
-	 * 
-	 * */
 }

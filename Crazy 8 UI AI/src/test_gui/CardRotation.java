@@ -21,7 +21,7 @@ import utility.Card;
 import utility.Rank;
 import utility.Suit;
 import utility.State;
-import gui.CardModel;
+import gui.CardModelOld;
 
 import javafx.util.Duration;
 import javafx.animation.Interpolator;
@@ -47,13 +47,13 @@ public class CardRotation extends Application {
 		scene.setCamera(new PerspectiveCamera());
 		
 		Card card1 = new Card(Rank.ACE, Suit.DIAMONDS, State.P_ONE);
-		card1.getModel().set(screen.getWidth() * 0.5 - CardModel.MODEL_WIDTH,
-				screen.getHeight() * 0.5 - CardModel.MODEL_HEIGHT);
+		card1.getModel().set(screen.getWidth() * 0.5 - CardModelOld.MODEL_WIDTH,
+				screen.getHeight() * 0.5 - CardModelOld.MODEL_HEIGHT);
 		card1.getModel().setFaceUp();
 	
 		Card card2 = new Card(Rank.KING, Suit.SPADES, State.P_ONE);
-		card2.getModel().set(screen.getWidth() * 0.5 + CardModel.MODEL_WIDTH, 
-				screen.getHeight() * 0.5 - CardModel.MODEL_HEIGHT);
+		card2.getModel().set(screen.getWidth() * 0.5 + CardModelOld.MODEL_WIDTH, 
+				screen.getHeight() * 0.5 - CardModelOld.MODEL_HEIGHT);
 		card2.getModel().setFaceDown();
 		
 		pane.getChildren().addAll(card1.getModel().get(), card2.getModel().get());
