@@ -6,6 +6,7 @@ import java.util.logging.Level;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import utility_deprecated.Card;
 import javafx.stage.Screen;
 
 import javafx.geometry.Rectangle2D;
@@ -20,8 +21,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.layout.Pane;
 
 import javafx.geometry.Orientation;
-
-import utility.Card;
 
 public class HandModelTestListView extends Application {
 	

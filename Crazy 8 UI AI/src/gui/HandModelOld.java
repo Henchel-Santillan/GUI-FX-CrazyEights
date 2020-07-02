@@ -3,11 +3,10 @@ package gui;
 import java.util.Objects;
 
 import javafx.scene.control.ListView;
+import utility_deprecated.Card;
 import javafx.scene.control.ListCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import utility.Card;
 
 public class HandModelOld {
 	

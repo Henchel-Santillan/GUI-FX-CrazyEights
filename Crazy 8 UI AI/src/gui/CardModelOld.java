@@ -16,13 +16,12 @@ import javafx.animation.SequentialTransition;
 
 import javafx.scene.Group;
 import javafx.scene.shape.Rectangle;
+import utility_deprecated.Rank;
+import utility_deprecated.Suit;
 import javafx.scene.paint.Color;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
-import utility.Rank;
-import utility.Suit;
 
 public class CardModelOld {
 	

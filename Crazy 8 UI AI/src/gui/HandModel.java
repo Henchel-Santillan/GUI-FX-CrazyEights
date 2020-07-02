@@ -9,8 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-
-import utility.Card;
+import utility_deprecated.Card;
 
 public class HandModel {
 	
@@ -63,35 +62,42 @@ public class HandModel {
 		return selected;
 	}
 	
-	public void add(CardModel cardModel) {	//deck should have pop
-		
+	public void add(CardModel cardModel) {	//deck should have pop	
+		cardModel.setFaceUp();
 		StackPane.setMargin(cardModel.getSkin(), new Insets(2.0d));
 		
 		cardModel.getSkin().setOnMouseEntered(e -> {
-			cardModel.setOnEnter();
-			e.consume();
+			if (!cardModel.isClicked()) {
+				cardModel.setOnEnter();
+				e.consume();
+			}
 		});
 		
 		cardModel.getSkin().setOnMouseExited(e -> {
-			cardModel.setOnExit();
-			e.consume();
+			if (!cardModel.isClicked()) {
+				cardModel.setOnExit();
+				e.consume();
+			}
 		});
 		
 		cardModel.getSkin().setOnMousePressed(e -> {
 			selected = cardModel;
 			
 			if (!cardModel.isClicked()) {
+				cardModel.setClicked(true);
 				cardModel.setOnClick();
 				this.disableAllElse(cardModelList);
 				
 				for (CardModel similar : cardModelList) {
 					if (similar.getRank() == selected.getRank()) {
+						similar.setClicked(true);
 						similar.setOnClick();
 						rankSimilar.add(similar);
 					}
 				}
 				
 			} else {
+				cardModel.setClicked(false);
 				cardModel.setOnExit();
 				this.disableAllElse(rankSimilar);
 			}
@@ -101,10 +107,17 @@ public class HandModel {
 		skin.getChildren().add(cardModel.getSkin());
 	}
 	
+	public void addAll(CardModel...cardModels) {
+		for (CardModel cardModel : cardModels) {
+			this.add(cardModel);
+		}
+	}
+	
 	public void disableAllElse(List<CardModel> cardModels) {
 		for (CardModel cardModel : cardModels) {
 			if (!cardModel.equals(selected)) {
 				cardModel.setOnExit();
+				cardModel.setClicked(false);
 			}
 		}
 	}
