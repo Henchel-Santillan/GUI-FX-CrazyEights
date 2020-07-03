@@ -1,6 +1,10 @@
 package utility_deprecated;
 
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.List;
+import java.util.ArrayList;
 
 import gui_deprecated.DeckModel;
 
