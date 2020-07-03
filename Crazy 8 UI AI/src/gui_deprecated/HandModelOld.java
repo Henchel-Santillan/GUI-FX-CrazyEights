@@ -1,4 +1,4 @@
-package gui;
+package gui_deprecated;
 
 import java.util.Objects;
 

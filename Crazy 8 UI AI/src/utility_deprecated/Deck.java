@@ -1,7 +1,8 @@
 package utility_deprecated;
 
 import java.util.Random;
-import gui.DeckModel;
+
+import gui_deprecated.DeckModel;
 
 public class Deck extends Pile1D {
 

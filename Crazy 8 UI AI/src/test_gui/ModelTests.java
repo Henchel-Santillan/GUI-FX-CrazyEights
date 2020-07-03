@@ -1,6 +1,11 @@
 package test_gui;
 
 import java.util.List;
+
+import gui_deprecated.CardModel;
+import gui_deprecated.DeckModel;
+import gui_deprecated.HandModel;
+
 import java.util.ArrayList;
 
 import javafx.application.Application;
@@ -22,10 +27,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.BorderPane;
 
 import java.net.URISyntaxException;
-
-import gui.CardModel;
-import gui.HandModel;
-import gui.DeckModel;
 
 public class ModelTests extends Application {
 

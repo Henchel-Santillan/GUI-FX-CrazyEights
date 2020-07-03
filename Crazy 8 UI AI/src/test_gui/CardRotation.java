@@ -16,13 +16,12 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.layout.Pane;
 
 import javafx.scene.image.Image;
-import gui.CardModelOld;
-
 import javafx.util.Duration;
 import utility_deprecated.Card;
 import utility_deprecated.Rank;
 import utility_deprecated.State;
 import utility_deprecated.Suit;
+import gui_deprecated.CardModelOld;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.animation.SequentialTransition;

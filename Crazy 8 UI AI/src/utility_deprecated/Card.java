@@ -1,6 +1,6 @@
 package utility_deprecated;
 
-import gui.CardModel;
+import gui_deprecated.CardModel;
 
 public class Card {
 	

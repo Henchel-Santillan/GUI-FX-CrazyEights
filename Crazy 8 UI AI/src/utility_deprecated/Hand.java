@@ -1,6 +1,6 @@
 package utility_deprecated;
 
-import gui.HandModel;
+import gui_deprecated.HandModel;
 
 public class Hand extends Pile1D {
 	
