@@ -26,6 +26,5 @@ public abstract class Pile1D {
 	}
 	
 	public abstract Card pop();
-	
 	public abstract List<Card> popAll();
 }

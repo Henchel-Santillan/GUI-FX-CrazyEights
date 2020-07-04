@@ -1,11 +1,13 @@
 package main;
 
-import java.util.Random;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -17,16 +19,12 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
 import javafx.scene.control.Label;
-
-import javafx.scene.image.ImageView;
 import javafx.scene.media.AudioClip;
 
 import main.Card.Rank;
 import main.Card.Suit;
 
 public class Deck extends Pile1D {
-	
-	private final Random random = new Random();
 	
 	public static final int DECK_SIZE = 52;
 	public static final int MIN_CAPACITY = 8;
@@ -36,8 +34,8 @@ public class Deck extends Pile1D {
 	//use a Binding to track change in state of isOnPrompt
 	//if true play fadetransition; if false then call stop()
 	private BooleanProperty isOnPrompt;
-
 	private final StackPane model;
+	private final Label counter;	//TODO: customize label for increased visibility
 	
 	public Deck() {
 		isOnPrompt = new SimpleBooleanProperty(false);
@@ -51,24 +49,47 @@ public class Deck extends Pile1D {
 				model.getChildren().add(card.getModel());
 			}
 		}
+		
+		counter = new Label(String.valueOf(DECK_SIZE));
+		model.getChildren().add(counter);
+		
+		model.backgroundProperty().bind(Bindings.when(isOnPrompt).then(new Background(
+				new BackgroundFill(Color.rgb(0, 255, 255), CornerRadii.EMPTY, Insets.EMPTY))).otherwise(
+						new Background(new BackgroundFill(Color.rgb(0, 0, 0), CornerRadii.EMPTY, Insets.EMPTY))));
 	}
 	
 	public StackPane getModel() {
 		return model;
 	}
 	
+	public BooleanProperty isOnPromptProperty() {
+		return isOnPrompt;
+	}
+	
+	public boolean isOnPrompt() {
+		return isOnPrompt.get();
+	}
+	
+	public void setisOnPrompt(boolean isOnPrompt) {
+		this.isOnPrompt.set(isOnPrompt);
+	}
+	
+	@Override
+	public void push(Card card) {
+		model.getChildren().remove(counter);
+		card.setFaceDown();
+		super.push(card);
+		counter.setText(String.valueOf(Double.valueOf(counter.getText()) + 1));
+		model.getChildren().add(counter);
+	}
+	
 	@Override
 	public void pushAll(List<Card> cardList) {
-		
-		for (int i = cardList.size() - 1; i > 0; i--) {
-			int j = random.nextInt(i + 1);
-			
-			Card temp = cardList.get(i);
-			cardList.set(i, cardList.get(j));
-			cardList.set(j, temp);
-		}
+		Collections.shuffle(cardList);
 	
-		super.pushAll(cardList);
+		for (Card card : cardList) {
+			this.push(card);
+		}
 	}
 	
 	//used for normal draw
@@ -79,7 +100,6 @@ public class Deck extends Pile1D {
 	}
 	
 	//used when drawing more than one card: only case is when draw effects are resolved
-	//TODO: Add audio for dealing
 	public List<Card> popAll() {
 		int fromIndex = cardList.size() - 1;
 		int toIndex = Dropzone.getDrawCount();
@@ -89,14 +109,26 @@ public class Deck extends Pile1D {
 	
 	//TODO: add audio + animation for shuffle
 	public void shuffle() {
-		for (int i = cardList.size() - 1; i > 0; i--) {
-			int j = random.nextInt(i + 1);
-			
-			Card temp = cardList.get(i);
-			cardList.set(i, cardList.get(j));
-			cardList.set(j, temp);
+		Collections.shuffle(cardList);
+		
+		for (int i = 0; i < model.getChildren().size(); i++) {
+			model.getChildren().set(i, cardList.get(i).getModel());
 		}
 		
-		//shuffle animation for the model
+		try {
+			AudioClip clip = new AudioClip(getClass().getResource(
+					"/AUDIO/cardShuffle.wav").toURI().toString());
+			clip.setCycleCount(1);
+			clip.play();
+			
+			
+			
+		} catch (URISyntaxException e) {
+			Logger.getLogger(Deck.class.getName()).log(Level.SEVERE, null, e);
+			
+		} catch (Exception e) {
+			Logger.getLogger(Deck.class.getName()).log(Level.SEVERE, null, e);
+			
+		}
 	}
 }

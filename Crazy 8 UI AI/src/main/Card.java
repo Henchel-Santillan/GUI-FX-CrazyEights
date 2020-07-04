@@ -83,7 +83,7 @@ public class Card {
 	
 	private final StackPane model;
 	private final ImageView skin;
-	private final Background entered, exited, clicked;
+	private final Background entered, exited, clicked, playable;
 	private BooleanProperty isClicked, isFaceUp, isPlayable;
 	
 	public Card(Rank rank, Suit suit, State state) {
@@ -110,6 +110,8 @@ public class Card {
 				Color.rgb(255, 255, 255), CornerRadii.EMPTY, Insets.EMPTY));
 		clicked = new Background(new BackgroundFill(
 				Color.rgb(50, 205, 50), CornerRadii.EMPTY, Insets.EMPTY));
+		playable = new Background(new BackgroundFill(
+				Color.rgb(255, 255, 0), CornerRadii.EMPTY, Insets.EMPTY));
 	}
 	
 	public Rank getRank() {
@@ -140,13 +142,26 @@ public class Card {
 		return isClicked.get();
 	}
 	
+	//indirect 'unclicking' of nunselected nodes
+	public void setIsClicked(boolean isClicked) {
+		this.isClicked.set(isClicked);
+	}
+	
+	//indiviudal, direct handling of click
 	public void clicked() {
 		try {
 			AudioClip clip = new AudioClip(getClass().getResource(
 					"/AUDIO/cardSlide1.wav").toURI().toString());
 			clip.setCycleCount(1);
 			clip.play();
-			model.setBackground(clicked);
+			
+			if (!isClicked.get()) {
+				isClicked.set(true);
+				model.setBackground(clicked);
+			} else {
+				isClicked.set(false);
+				this.exited();
+			}
 			
 		} catch (URISyntaxException e) {
 			Logger.getLogger(Card.class.getName()).log(Level.SEVERE, null, e);
@@ -201,8 +216,14 @@ public class Card {
 		return isPlayable.get();
 	}
 	
-	public void setPlayable(boolean isPlayable) {
+	public void setIsPlayable(boolean isPlayable) {
 		this.isPlayable.set(isPlayable);
+		
+		if (isPlayable) {
+			model.setBackground(playable);
+		} else {
+			this.exited();
+		}
 	}
 	
 	public void entered() { //card slide for enter, chip place for click?

@@ -93,6 +93,7 @@ public class Dropzone extends Pile1D {
 	}
 	
 	//MAXIMUM NUMBER OF DUPLICATES IS 4: can create constraints to limit view into parent list
+	/**Defines the maximum card depth from the top of the Dropzone where a rank discrepancy is first noted.*/
 	public int depthSearch() {
 		int count = 1;
 		int index = cardList.size() - 1;
