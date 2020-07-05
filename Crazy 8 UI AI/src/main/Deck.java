@@ -102,7 +102,7 @@ public class Deck extends Pile1D {
 	//used when drawing more than one card: only case is when draw effects are resolved
 	public List<Card> popAll() {
 		int fromIndex = cardList.size() - 1;
-		int toIndex = Dropzone.getDrawCount();
+		int toIndex = fromIndex - Dropzone.getDrawCount();
 		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
 		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
 	}

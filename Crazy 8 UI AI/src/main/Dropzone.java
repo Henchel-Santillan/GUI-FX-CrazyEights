@@ -16,19 +16,29 @@ public class Dropzone extends Pile1D {
 
 	private final StackPane model;
 	private static IntegerProperty drawCount, skipCount;
-	private static BooleanProperty suitChangeRequest;
+	private static BooleanProperty requestSuitChange;
+	
+	private Suit changedSuit;
 	
 	//TODO: Create model for Deck. Model for Dropzone is an inverted Deck model.
 	public Dropzone() {
 		drawCount = new SimpleIntegerProperty(0);
 		skipCount = new SimpleIntegerProperty(0);
-		suitChangeRequest = new SimpleBooleanProperty(false);
+		requestSuitChange = new SimpleBooleanProperty(false);
 		
 		model = new StackPane();
 	}
 	
 	public StackPane getModel() {
 		return model;
+	}
+	
+	public Suit getChangedSuit() {
+		return changedSuit;
+	}
+	
+	public void setChangedSuit(Suit changedSuit) {
+		this.changedSuit = changedSuit;
 	}
 	
 	public static IntegerProperty drawCountProperty() {
@@ -47,35 +57,63 @@ public class Dropzone extends Pile1D {
 		return skipCount.get();
 	}
 	
-	public static BooleanProperty suitChangeRequestProperty() {
-		return suitChangeRequest;
+	public static BooleanProperty requestSuitChangeProperty() {
+		return requestSuitChange;
 	}
 	
-	public static boolean getSuitChangeRequest() {
-		return suitChangeRequest.get();
+	public static boolean requestSuitChange() {
+		return requestSuitChange.get();
 	}
 	
 	@Override
+	public void push(Card card) {
+		super.push(card);
+		int count = this.depthSearch();	//resets count everytime a card is pushed
+		
+		switch (card.getRank()) {
+			case JACK:
+				skipCount.set(count);
+				break;
+			case TWO:
+				drawCount.set(2 * count);
+				break;
+			case QUEEN:
+				if (card.getSuit() == Suit.SPADES) drawCount.set(drawCount.get() + 5);
+				break;
+			case EIGHT:
+				requestSuitChange.set(true);
+				break;
+			default: break;
+		}
+	}
+	
+	//NOTE: must switch settings to off, then restart using depthSearch; just call Card here.
+	@Override
 	public void pushAll(List<Card> cardList) {
+		int count = cardList.size();
+		
+		//do not push any cards yet, must conduct depthSearch on the pop() card
+		if (this.pop().getRank() == cardList.get(0).getRank()) {
+			count += this.depthSearch();
+		}
+		
+		switch (cardList.get(0).getRank()) {
+			case JACK:
+				skipCount.set(count);
+				break;
+			case TWO:
+				skipCount.set(2 * count);
+				break;
+			case QUEEN:
+				if (cardList.get(cardList.size() - 1).getSuit() == Suit.SPADES) skipCount.set(skipCount.get() + 5);
+				break;
+			case EIGHT:
+				requestSuitChange.set(true);
+			default: break;
+		}
+		
 		for (Card card : cardList) {
-			
-			switch (card.getRank()) {
-				case JACK:
-					skipCount.set(skipCount.get() + 1);;
-					break;
-				case TWO:
-					drawCount.set(drawCount.get() + 2);;
-					break;
-				case QUEEN:
-					if (card.getSuit() == Suit.SPADES) drawCount.set(drawCount.get() + 5);
-					break;
-				case EIGHT:
-					suitChangeRequest.set(true);
-					break;
-				default: break;
-			}
-			
-			this.push(card);
+			super.push(card);
 		}
 	}
 	
@@ -96,10 +134,12 @@ public class Dropzone extends Pile1D {
 	/**Defines the maximum card depth from the top of the Dropzone where a rank discrepancy is first noted.*/
 	public int depthSearch() {
 		int count = 1;
-		int index = cardList.size() - 1;
+		int index = cardList.size() - 2;
+		Card lastIn = this.pop();
 		
-		while (cardList.get(index).getRank() == cardList.get(index + 1).getRank()) {
+		while (cardList.get(index).getRank() == lastIn.getRank() && index >= 0) {
 			count++;
+			index--;
 		}
 		
 		return count;
