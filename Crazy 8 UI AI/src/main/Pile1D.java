@@ -15,6 +15,10 @@ public abstract class Pile1D {
 		return cardList;
 	}
 	
+	public boolean isEmpty() {
+		return cardList.size() == 0;
+	}
+	
 	public void push(Card card) {
 		cardList.add(card);
 	}

@@ -3,12 +3,14 @@ package main;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class Player {
+import javafx.scene.control.Button;
 
+public abstract class Player {
+	
 	private final State state;
 	private final Hand hand;
 	
-	private BooleanProperty isSkipped;
+	private BooleanProperty isSkipped, hasDrawn;
 	
 	/**Constructor for class Player. Instantiates a Plater with a State and a Hand.
 	 * @param state - The state of the Player. See enum State.
@@ -19,6 +21,7 @@ public class Player {
 		this.hand = hand;
 		
 		isSkipped = new SimpleBooleanProperty(false);
+		hasDrawn = new SimpleBooleanProperty(false);
 	}
 	
 	/**Gets the State of the Player.
@@ -49,7 +52,27 @@ public class Player {
 		this.isSkipped.set(isSkipped);
 	}
 	
+	public BooleanProperty hasDrawnProperty() {
+		return hasDrawn;
+	}
 	
+	public boolean hasDrawn() {
+		return hasDrawn.get();
+	}
 	
+	public void setHasDrawn(boolean hasDrawn) {
+		this.hasDrawn.set(hasDrawn);
+	}
 	
+	public boolean isHuman() {
+		return this instanceof HumanPlayer;
+	}
+	
+	public boolean hasWon() {
+		return hand.isEmpty();
+	}
+	
+	public void markReady(Button button) {
+		hand.enable(button);
+	}
 }

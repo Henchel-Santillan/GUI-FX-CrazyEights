@@ -15,8 +15,8 @@ import main.Card.Suit;
 public class Dropzone extends Pile1D {
 
 	private final StackPane model;
-	private static IntegerProperty drawCount, skipCount;
-	private static BooleanProperty requestSuitChange;
+	private IntegerProperty drawCount, skipCount;
+	private BooleanProperty requestSuitChange;
 	
 	private Suit changedSuit;
 	
@@ -41,28 +41,32 @@ public class Dropzone extends Pile1D {
 		this.changedSuit = changedSuit;
 	}
 	
-	public static IntegerProperty drawCountProperty() {
+	public IntegerProperty drawCountProperty() {
 		return drawCount;
 	}
 	
-	public static int getDrawCount() {
+	public int getDrawCount() {
 		return drawCount.get();
 	}
 	
-	public static IntegerProperty skipCountProperty() {
+	public IntegerProperty skipCountProperty() {
 		return skipCount;
 	}
 	
-	public static int getSkipCount() {
+	public int getSkipCount() {
 		return skipCount.get();
 	}
 	
-	public static BooleanProperty requestSuitChangeProperty() {
+	public BooleanProperty requestSuitChangeProperty() {
 		return requestSuitChange;
 	}
 	
-	public static boolean requestSuitChange() {
+	public boolean requestSuitChange() {
 		return requestSuitChange.get();
+	}
+	
+	public void setRequestSuitChange(boolean requestSuitChange) {
+		this.requestSuitChange.set(requestSuitChange);
 	}
 	
 	@Override
@@ -87,12 +91,13 @@ public class Dropzone extends Pile1D {
 		}
 	}
 	
-	//NOTE: must switch settings to off, then restart using depthSearch; just call Card here.
+	//NOTE: must switch settings to off, then restart using depthSearch.
 	@Override
 	public void pushAll(List<Card> cardList) {
 		int count = cardList.size();
 		
 		//do not push any cards yet, must conduct depthSearch on the pop() card
+		//all cards in the cardList (playList) will have the same rank anyways
 		if (this.pop().getRank() == cardList.get(0).getRank()) {
 			count += this.depthSearch();
 		}
@@ -127,17 +132,19 @@ public class Dropzone extends Pile1D {
 		int fromIndex = 0;
 		int toIndex = cardList.size() - this.depthSearch();
 		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
+		
 		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
 	}
 	
 	//MAXIMUM NUMBER OF DUPLICATES IS 4: can create constraints to limit view into parent list
 	/**Defines the maximum card depth from the top of the Dropzone where a rank discrepancy is first noted.*/
 	public int depthSearch() {
-		int count = 1;
-		int index = cardList.size() - 2;
-		Card lastIn = this.pop();
+		int count = 1;						//start at one since lastIn counts as 1 repetition + always 1 card in d-zone
+		int index = cardList.size() - 2;	//index begins at lastIn + 1, or size - 2
+		Card lastIn = this.pop();			//the card at the top of the Dropzone pile 
 		
-		while (cardList.get(index).getRank() == lastIn.getRank() && index >= 0) {
+		//if index < 0 (i.e. there are less than 2 cards, the count will not run)
+		while (index >= 0 && cardList.get(index).getRank() == lastIn.getRank()) {
 			count++;
 			index--;
 		}

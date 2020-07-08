@@ -10,6 +10,8 @@ import java.util.Collections;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.StackPane;
@@ -33,6 +35,9 @@ public class Deck extends Pile1D {
 	//if draw OR a move is made, set isOnPrompt to false
 	//use a Binding to track change in state of isOnPrompt
 	//if true play fadetransition; if false then call stop()
+	
+	//MAKE A toDraw field to indicate how much to deal
+	private IntegerProperty toDeal;
 	private BooleanProperty isOnPrompt;
 	private final StackPane model;
 	private final Label counter;	//TODO: customize label for increased visibility
@@ -56,10 +61,24 @@ public class Deck extends Pile1D {
 		model.backgroundProperty().bind(Bindings.when(isOnPrompt).then(new Background(
 				new BackgroundFill(Color.rgb(0, 255, 255), CornerRadii.EMPTY, Insets.EMPTY))).otherwise(
 						new Background(new BackgroundFill(Color.rgb(0, 0, 0), CornerRadii.EMPTY, Insets.EMPTY))));
+		
+		toDeal = new SimpleIntegerProperty(0);
 	}
 	
 	public StackPane getModel() {
 		return model;
+	}
+	
+	public IntegerProperty toDealProperty() {
+		return toDeal;
+	}
+	
+	public int toDeal() {
+		return toDeal.get();
+	}
+	
+	public void setToDeal(int toDeal) {
+		this.toDeal.set(toDeal);
 	}
 	
 	public BooleanProperty isOnPromptProperty() {
@@ -102,7 +121,7 @@ public class Deck extends Pile1D {
 	//used when drawing more than one card: only case is when draw effects are resolved
 	public List<Card> popAll() {
 		int fromIndex = cardList.size() - 1;
-		int toIndex = fromIndex - Dropzone.getDrawCount();
+		int toIndex = fromIndex - this.toDeal();	//toDeal() = Dropzone.getDrawCount()
 		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
 		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
 	}
@@ -120,8 +139,6 @@ public class Deck extends Pile1D {
 					"/AUDIO/cardShuffle.wav").toURI().toString());
 			clip.setCycleCount(1);
 			clip.play();
-			
-			
 			
 		} catch (URISyntaxException e) {
 			Logger.getLogger(Deck.class.getName()).log(Level.SEVERE, null, e);

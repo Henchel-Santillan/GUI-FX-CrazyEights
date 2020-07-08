@@ -8,11 +8,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -22,58 +19,47 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Button;
 
+import main.Card.Rank;
+
 public class Hand extends Pile1D {
 
 	public static final int VIEW_CAP = 8;
 	
+	private final List<Card> playable;
 	private final ObservableList<Card> playList;
 	private final List<Card> rankList;
 	
-	private final VBox model;
-	private final ScrollPane container;
-	private final HBox box;
-	private final Button confirmMove;
+	private final ScrollPane model;
+	private final HBox container;
 	private Card selected;
 	
 	public Hand() {
 		playList = FXCollections.observableArrayList();
 		rankList = new ArrayList<>();
+		playable = new ArrayList<>();	
+	
+		container = new HBox();
+		container.setSpacing(2.0d);
 		
-		box = new HBox();
-		box.setSpacing(2.0d);
+		model = new ScrollPane();
+		model.setContent(container);
+		model.setVbarPolicy(ScrollBarPolicy.NEVER);
+		model.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		
-		container = new ScrollPane();
-		container.setContent(box);
-		container.setVbarPolicy(ScrollBarPolicy.NEVER);
-		container.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		model.setFitToHeight(true);
+		model.setMaxWidth(Card.SKIN_WIDTH * VIEW_CAP);
+		model.setMaxHeight(Card.SKIN_HEIGHT);
 		
-		container.setFitToHeight(true);
-		container.setMaxWidth(Card.SKIN_WIDTH * VIEW_CAP);
-		container.setMaxHeight(Card.SKIN_HEIGHT);
-		
-		container.setPannable(true);
-		container.setOnScroll(e -> {
+		model.setPannable(true);
+		model.setOnScroll(e -> {
 			if(e.getDeltaX() == 0 && e.getDeltaY() != 0) {
-				container.setHvalue(container.getHvalue() - e.getDeltaY() / container.getWidth());
+				model.setHvalue(model.getHvalue() - e.getDeltaY() / model.getWidth());
 				e.consume();
 			}
 		});
-		
-		confirmMove = new Button("Confirm");
-		confirmMove.setDisable(true);
-		
-		playList.addListener((ListChangeListener<Card>) c ->  {
-			confirmMove.setDisable(c.getList().size() < 1);
-		});
-		
-		model = new VBox();
-		model.setAlignment(Pos.CENTER);
-		VBox.setVgrow(confirmMove, Priority.NEVER);
-		
-		//TODO: confirmMove design
 	}
 	
-	public VBox getModel() {
+	public ScrollPane getModel() {
 		return model;
 	}
 	
@@ -82,17 +68,29 @@ public class Hand extends Pile1D {
 			if (card != selected) {
 				card.exited();
 				card.setIsClicked(false);
+				card.setIsPlayable(false);
 			}
 		}
 	}
 	
-	//card = dropzone.pop()
+	//lastIn = dropzone.pop()
+	//TODO: Make a StackPane Background colour hint for playable cards. Will be needed in reset()
 	public void markAllEligible(Card lastIn) {
 		for (Card card : cardList) {
-			if (card.getRank() == lastIn.getRank() || card.getSuit() == lastIn.getSuit()) {
+			if (card.getRank() == lastIn.getRank() || card.getSuit() == lastIn.getSuit() 
+					|| card.getRank() == Rank.EIGHT) {
 				card.setIsPlayable(true);
+				playable.add(card);	
 			}
 		}
+	}
+	
+	public void enable(Button button) {
+		playList.addListener((ListChangeListener<Card>) c ->  {
+			boolean positive = c.getList().size() > 1;
+			button.setDisable(positive);
+			button.setVisible(positive);
+		});
 	}
 	
 	//card = deck.pop()
@@ -114,8 +112,7 @@ public class Hand extends Pile1D {
 			});
 			
 			card.getModel().setOnMousePressed(e -> {
-				//TODO: Add a button control that floats so that user can confirm selection up to most recent point
-				
+
 				selected = card;
 				card.clicked();
 				
@@ -133,24 +130,26 @@ public class Hand extends Pile1D {
 							rankCard.getModel().setOnMousePressed(m -> {
 								rankCard.clicked();
 								
+								/*Removing from playList but keeping in rankList means clear op + disable op are intact*/
 								if (!rankCard.isClicked()) {
-									playList.add(rankList.remove(rankList.indexOf(rankCard)));
+									playList.add(rankCard);
 								} else {
-									rankList.add(playList.remove(playList.indexOf(rankCard)));
+									playList.remove(rankCard);
 								}
 							});
 						}
 					}
 					
 				} else {
-					playList.remove(selected);
+					playList.clear();
 					this.disableAllElse(rankList);
+					
 				}
 			});
 		}
 		
 		cardList.add(card);
-		box.getChildren().add(card.getModel());
+		container.getChildren().add(card.getModel());
 	}
 	
 	//cardList = deck.popAll()
@@ -162,7 +161,7 @@ public class Hand extends Pile1D {
 	
 	//used only if rankList turns up empty
 	public Card pop() {
-		box.getChildren().remove(selected.getModel());
+		container.getChildren().remove(selected.getModel());
 		return cardList.remove(cardList.indexOf(selected));
 	}
 	
@@ -170,7 +169,8 @@ public class Hand extends Pile1D {
 	public List<Card> popAll() {
 		
 		for (Card card : playList) {
-			box.getChildren().remove(card.getModel());
+			container.getChildren().remove(card.getModel());
+			cardList.remove(card);
 		}
 		
 		return playList;
@@ -184,12 +184,12 @@ public class Hand extends Pile1D {
 			
 			while (j >= 0 && cardList.get(j).getSuit().getIterator() > key.getSuit().getIterator()) {
 				cardList.set(j + 1, cardList.get(j));
-				box.getChildren().set(j + 1, cardList.get(j).getModel());
+				container.getChildren().set(j + 1, cardList.get(j).getModel());
 				j--;
 			}
 			
 			cardList.set(j + 1, key);
-			box.getChildren().set(j + 1, key.getModel());
+			container.getChildren().set(j + 1, key.getModel());
 		}
 	}
 	
@@ -201,12 +201,12 @@ public class Hand extends Pile1D {
 			
 			while (j >= 0 && cardList.get(j).getRank().getValue() > key.getRank().getValue()) {
 				cardList.set(j + 1, cardList.get(j));
-				box.getChildren().set(j + 1, cardList.get(j).getModel());
+				container.getChildren().set(j + 1, cardList.get(j).getModel());
 				j--;
 			}
 			
 			cardList.set(j + 1, key);
-			box.getChildren().set(j + 1, key.getModel());
+			container.getChildren().set(j + 1, key.getModel());
 		}
 	}
 	
@@ -220,13 +220,16 @@ public class Hand extends Pile1D {
 					cardList.get(j).getSuit().getIterator() > key.getSuit().getIterator()) {
 				
 				cardList.set(j + 1, cardList.get(j));
-				box.getChildren().set(j + 1, cardList.get(j).getModel());
+				container.getChildren().set(j + 1, cardList.get(j).getModel());
 				j--;
 			}
 				
 			cardList.set(j + 1,  key);
-			box.getChildren().set(j + 1, key.getModel());
+			container.getChildren().set(j + 1, key.getModel());
 		}
 	}
 	
+	private void reset() {
+		
+	}
 }

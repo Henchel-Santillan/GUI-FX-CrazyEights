@@ -5,12 +5,18 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import javafx.scene.layout.Region;
-import javafx.stage.Modality;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+
 import javafx.scene.Group;
+
+import javafx.stage.Modality;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.Button;
 
 import main.Card.Suit;
+import main.Card.Rank;
 
 public class Field {
 
@@ -19,9 +25,9 @@ public class Field {
 	
 	private final List<Player> playerList;
 	private Player current;
-	private Suit changedSuit;
 	
 	private final BorderPane model;
+	private final Button confirm;
 	
 	public Field() {
 		deck = new Deck();
@@ -36,7 +42,14 @@ public class Field {
 		model = new BorderPane();
 		model.setCenter(group);
 		
-		model.setBottom(playerList.get(0).getHand().getModel());
+		confirm = new Button("Confirm");		//still must add to the scene graph
+		confirm.setDisable(true);				//setOnAction: must disappear 
+		
+		VBox box = new VBox();
+		VBox.setVgrow(confirm, Priority.NEVER);
+		
+		box.getChildren().addAll(playerList.get(0).getHand().getModel(), confirm);
+		
 		model.setTop(playerList.get(1).getHand().getModel());
 		
 		switch (playerList.size()) {
@@ -58,11 +71,12 @@ public class Field {
 	}
 	
 	public Player nextPlayer() {
-		if (Dropzone.getDrawCount() > 0) {
+		if (dropzone.getDrawCount() > 0) {
+			deck.setToDeal(dropzone.getDrawCount());
 			playerList.get((playerList.indexOf(current) + 1) % 4).getHand().pushAll(deck.popAll()); 
 		}
 		
-		if (Dropzone.requestSuitChange()) {
+		if (dropzone.requestSuitChange()) {
 			List<String> choices = new ArrayList<>();
 			
 			for (Suit suit : Suit.values()) {
@@ -74,36 +88,52 @@ public class Field {
 			modal.setHeaderText("Select a suit from the list below.");
 			modal.setContentText("NOTE:\n'S' = Spades\n'C' = Clubs\n'D' = Diamonds\n'H = Hearts'");
 			modal.initModality(Modality.APPLICATION_MODAL);
-			
+			modal.setResizable(false);
 			
 			Optional<String> result = modal.showAndWait();
-			//cancelling or closing the dialog (on purpose or uneopectedly) will preserve the original suit
-			//must set suitChange Request to False here.
+	
 			if (result.isPresent()) {
 				switch (result.get()) {
 					case "S":
-						changedSuit = Suit.SPADES;
+						dropzone.setChangedSuit(Suit.SPADES);
 						break;
 					case "C":
-						changedSuit = Suit.CLUBS;
+						dropzone.setChangedSuit(Suit.CLUBS);
 						break;
 					case "D":
-						changedSuit = Suit.DIAMONDS;
+						dropzone.setChangedSuit(Suit.DIAMONDS);
 						break;
 					case "H":
-						changedSuit = Suit.HEARTS;
+						dropzone.setChangedSuit(Suit.HEARTS);
 						break;
 				}
 			}
-			//must set requestSuitChange to false 
+			dropzone.setRequestSuitChange(false); 
 		}
 		
-		return (Dropzone.getSkipCount() > 0) ? 
-			playerList.get(((playerList.indexOf(current) + 1) + Dropzone.getSkipCount()) % playerList.size()) : 
+		return (dropzone.getSkipCount() > 0) ? 
+			playerList.get(((playerList.indexOf(current) + 1) + dropzone.getSkipCount()) % playerList.size()) : 
 			playerList.get((playerList.indexOf(current) + 1) % playerList.size());
 	}
 	
-	/*public void put(Hand hand, Dropzone dropzone) {
+	//mark all eligible + dropzone pop
+	//changedSuit: how to determine when to use if state of requestSuitChange always changes?
+	public void mark() {
+		Card lastIn = dropzone.pop();
 		
-	}*/
+		if (lastIn.getRank() == Rank.EIGHT && lastIn.getSuit() != dropzone.getChangedSuit()) {
+			//create a pseudocard that does not exist (in the cardList or physically in the UI models)
+			current.getHand().markAllEligible(new Card(Rank.EIGHT, dropzone.getChangedSuit(), State.NONE));
+		} else {
+			current.getHand().markAllEligible(lastIn);
+		}
+	}
+	
+	public void listen() {
+		current.markReady(confirm);
+		
+		confirm.setOnAction(e -> {
+			dropzone.pushAll(current.getHand().popAll());
+		});
+	}
 }
