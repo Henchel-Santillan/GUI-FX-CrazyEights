@@ -184,7 +184,7 @@ public class Card {
 		
 		try {
 			skin.setImage(new Image(getClass().getResource(
-					"/IMAGE/".concat(rank.getID() + suit.getID() + ".png")).toURI().toString()));
+					"/IMAGE/".concat(this.toString() + ".png")).toURI().toString()));
 	
 		} catch (URISyntaxException e) {
 			Logger.getLogger(Card.class.getName()).log(Level.SEVERE, null, e);
@@ -244,7 +244,7 @@ public class Card {
 			
 			skin.imageProperty().bind(Bindings.when(isFaceUp).then(
 					new Image(getClass().getResource(
-							"/IMAGE/".concat(rank.getID() + suit.getID() + ".png")).toURI().toString())).otherwise(
+							"/IMAGE/".concat(this.toString() + ".png")).toURI().toString())).otherwise(
 									new Image(getClass().getResource(
 							"/IMAGE/card_back.png").toURI().toString())));
 			
@@ -270,6 +270,11 @@ public class Card {
 		} catch (Exception e) {
 			Logger.getLogger(Card.class.getName()).log(Level.SEVERE, null, e);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return rank.getID() + suit.getID() + " " + state.getID();
 	}
 	 
 	private RotateTransition generateRotator(double fromAngle, double toAngle) {

@@ -3,6 +3,9 @@ package main;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javafx.beans.binding.BooleanBinding;
 
 import javafx.scene.layout.Region;
 import javafx.scene.layout.BorderPane;
@@ -70,6 +73,7 @@ public class Field {
 		return model;
 	}
 	
+	//resolves all effects and gets the next non-skipped Player in the plyerList
 	public Player nextPlayer() {
 		if (dropzone.getDrawCount() > 0) {
 			deck.setToDeal(dropzone.getDrawCount());
@@ -135,5 +139,26 @@ public class Field {
 		confirm.setOnAction(e -> {
 			dropzone.pushAll(current.getHand().popAll());
 		});
+	}
+	
+	//split list into two from this.depthSearch() onwards and this.depthSearch() backwards
+	//method follows through only if deck recommended size drops below Deck.MIN_CAPAICTY
+	public void recycle() {
+		int splitIndex = dropzone.cardList.size() - dropzone.depthSearch();
+		
+		//lists.get(0) is from dropzone 0 to this.depthSearch() - 1
+		//lists.get(1) is this.depthSearch() to dropzone.cardList.size() - 1
+		List<List<Card>> lists = new ArrayList<>(
+				dropzone.cardList.stream()
+				.collect(Collectors.groupingBy(s -> dropzone.cardList.indexOf(s) >= splitIndex)).values()
+		);
+		
+		dropzone.cardList.removeAll(lists.get(0));
+		
+		Deck temp = new Deck();
+		temp.pushAll(lists.get(0));
+		temp.shuffle();
+		
+		deck.pushAll(temp.cardList);
 	}
 }

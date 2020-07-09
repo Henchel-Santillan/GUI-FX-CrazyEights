@@ -97,7 +97,9 @@ public class Deck extends Pile1D {
 	public void push(Card card) {
 		model.getChildren().remove(counter);
 		card.setFaceDown();
-		super.push(card);
+		
+		
+		
 		counter.setText(String.valueOf(Double.valueOf(counter.getText()) + 1));
 		model.getChildren().add(counter);
 	}

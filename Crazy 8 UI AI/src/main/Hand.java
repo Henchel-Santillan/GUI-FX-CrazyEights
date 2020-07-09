@@ -25,8 +25,8 @@ public class Hand extends Pile1D {
 
 	public static final int VIEW_CAP = 8;
 	
-	private final List<Card> playable;
 	private final ObservableList<Card> playList;
+	private final List<Card> playableList;
 	private final List<Card> rankList;
 	
 	private final ScrollPane model;
@@ -36,7 +36,7 @@ public class Hand extends Pile1D {
 	public Hand() {
 		playList = FXCollections.observableArrayList();
 		rankList = new ArrayList<>();
-		playable = new ArrayList<>();	
+		playableList = new ArrayList<>();	
 	
 		container = new HBox();
 		container.setSpacing(2.0d);
@@ -74,13 +74,12 @@ public class Hand extends Pile1D {
 	}
 	
 	//lastIn = dropzone.pop()
-	//TODO: Make a StackPane Background colour hint for playable cards. Will be needed in reset()
 	public void markAllEligible(Card lastIn) {
 		for (Card card : cardList) {
 			if (card.getRank() == lastIn.getRank() || card.getSuit() == lastIn.getSuit() 
 					|| card.getRank() == Rank.EIGHT) {
 				card.setIsPlayable(true);
-				playable.add(card);	
+				playableList.add(card);	
 			}
 		}
 	}
@@ -130,7 +129,6 @@ public class Hand extends Pile1D {
 							rankCard.getModel().setOnMousePressed(m -> {
 								rankCard.clicked();
 								
-								/*Removing from playList but keeping in rankList means clear op + disable op are intact*/
 								if (!rankCard.isClicked()) {
 									playList.add(rankCard);
 								} else {
@@ -144,6 +142,9 @@ public class Hand extends Pile1D {
 					playList.clear();
 					this.disableAllElse(rankList);
 					
+					for (Card playableCard : playableList) {
+						playableCard.setIsPlayable(true);
+					}
 				}
 			});
 		}
@@ -160,6 +161,7 @@ public class Hand extends Pile1D {
 	}
 	
 	//used only if rankList turns up empty
+	//REALITY: ACTUALLY NEVER USED
 	public Card pop() {
 		container.getChildren().remove(selected.getModel());
 		return cardList.remove(cardList.indexOf(selected));
@@ -227,9 +229,5 @@ public class Hand extends Pile1D {
 			cardList.set(j + 1,  key);
 			container.getChildren().set(j + 1, key.getModel());
 		}
-	}
-	
-	private void reset() {
-		
 	}
 }

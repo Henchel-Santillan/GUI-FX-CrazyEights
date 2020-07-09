@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public abstract class Pile1D {
 	
@@ -27,6 +28,17 @@ public abstract class Pile1D {
 		for (Card card : cardList) {
 			this.push(card);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		StringJoiner joiner = new StringJoiner(",");
+		
+		for (Card card : cardList) {
+			joiner.add(card.toString());
+		}
+		
+		return joiner.toString();
 	}
 	
 	public abstract Card pop();
