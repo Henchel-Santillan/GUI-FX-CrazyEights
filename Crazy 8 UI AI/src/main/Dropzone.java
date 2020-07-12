@@ -8,7 +8,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
+import javafx.geometry.Pos;
+
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
 
 import main.Card.Suit;
 
@@ -27,6 +30,11 @@ public class Dropzone extends Pile1D {
 		requestSuitChange = new SimpleBooleanProperty(false);
 		
 		model = new StackPane();
+		
+		//TODO: label highlights for visibility
+		Label dropzoneLabel = new Label("DROPZONE");
+		StackPane.setAlignment(dropzoneLabel, Pos.CENTER);
+		model.getChildren().add(dropzoneLabel);
 	}
 	
 	public StackPane getModel() {
@@ -131,9 +139,13 @@ public class Dropzone extends Pile1D {
 	public List<Card> popAll() {
 		int fromIndex = 0;
 		int toIndex = cardList.size() - this.depthSearch();
-		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
 		
-		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
+		List<Card> popAllList = new ArrayList<>(cardList.subList(0, cardList.size() - this.depthSearch()));
+		
+		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
+		cardList.removeAll(popAllList);
+		
+		return popAllList;
 	}
 	
 	//MAXIMUM NUMBER OF DUPLICATES IS 4: can create constraints to limit view into parent list

@@ -63,6 +63,14 @@ public class Hand extends Pile1D {
 		return model;
 	}
 	
+	public void enable(Button button) {
+		playList.addListener((ListChangeListener<Card>) c ->  {
+			boolean positive = c.getList().size() > 1;
+			button.setDisable(positive);
+			button.setVisible(positive);
+		});
+	}
+	
 	public void disableAllElse(List<Card> cardList) {
 		for (Card card : cardList) {
 			if (card != selected) {
@@ -82,14 +90,6 @@ public class Hand extends Pile1D {
 				playableList.add(card);	
 			}
 		}
-	}
-	
-	public void enable(Button button) {
-		playList.addListener((ListChangeListener<Card>) c ->  {
-			boolean positive = c.getList().size() > 1;
-			button.setDisable(positive);
-			button.setVisible(positive);
-		});
 	}
 	
 	//card = deck.pop()

@@ -14,6 +14,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -29,7 +31,7 @@ import main.Card.Suit;
 public class Deck extends Pile1D {
 	
 	public static final int DECK_SIZE = 52;
-	public static final int MIN_CAPACITY = 8;
+	public static final int MIN_CAPACITY = 13;
 	
 	//use a fadetransition to make deck blink for prompt
 	//if draw OR a move is made, set isOnPrompt to false
@@ -40,11 +42,15 @@ public class Deck extends Pile1D {
 	private IntegerProperty toDeal;
 	private BooleanProperty isOnPrompt;
 	private final StackPane model;
-	private final Label counter;	//TODO: customize label for increased visibility
 	
 	public Deck() {
 		isOnPrompt = new SimpleBooleanProperty(false);
 		model = new StackPane();
+		
+		//TODO: Decorate label with CSS styling
+		Label deckLabel = new Label("DECK");
+		StackPane.setAlignment(deckLabel, Pos.CENTER);
+		model.getChildren().add(deckLabel);
 		
 		for (int i = 0; i < Suit.values().length; i++) {
 			for (int j = 0; j < Rank.values().length; j++) {
@@ -54,9 +60,6 @@ public class Deck extends Pile1D {
 				model.getChildren().add(card.getModel());
 			}
 		}
-		
-		counter = new Label(String.valueOf(DECK_SIZE));
-		model.getChildren().add(counter);
 		
 		model.backgroundProperty().bind(Bindings.when(isOnPrompt).then(new Background(
 				new BackgroundFill(Color.rgb(0, 255, 255), CornerRadii.EMPTY, Insets.EMPTY))).otherwise(
@@ -89,19 +92,14 @@ public class Deck extends Pile1D {
 		return isOnPrompt.get();
 	}
 	
-	public void setisOnPrompt(boolean isOnPrompt) {
+	public void setIsOnPrompt(boolean isOnPrompt) {
 		this.isOnPrompt.set(isOnPrompt);
 	}
 	
 	@Override
 	public void push(Card card) {
-		model.getChildren().remove(counter);
 		card.setFaceDown();
-		
-		
-		
-		counter.setText(String.valueOf(Double.valueOf(counter.getText()) + 1));
-		model.getChildren().add(counter);
+		cardList.add(0, card);	//add card to bottom instead of the top
 	}
 	
 	@Override
@@ -128,7 +126,7 @@ public class Deck extends Pile1D {
 		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
 	}
 	
-	//TODO: add audio + animation for shuffle
+	//TODO: add animation for shuffle + sync with audio
 	public void shuffle() {
 		Collections.shuffle(cardList);
 		

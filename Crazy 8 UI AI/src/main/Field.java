@@ -2,10 +2,9 @@ package main;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javafx.beans.binding.BooleanBinding;
 
 import javafx.scene.layout.Region;
 import javafx.scene.layout.BorderPane;
@@ -17,6 +16,7 @@ import javafx.scene.Group;
 import javafx.stage.Modality;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
 import main.Card.Suit;
 import main.Card.Rank;
@@ -31,12 +31,22 @@ public class Field {
 	
 	private final BorderPane model;
 	private final Button confirm;
+	private final Label deckCounter, dropzoneCounter;
 	
-	public Field() {
+	public Field(Player...players) {
 		deck = new Deck();
+		deckCounter = new Label(String.valueOf(deck.cardList.size()));
+		
 		dropzone = new Dropzone();
+		dropzoneCounter = new Label(String.valueOf(dropzone.cardList.size()));
 		
 		playerList = new ArrayList<>();
+		
+		for (Player player : players) {
+			playerList.add(player);
+		}
+		
+		current = playerList.get(0);
 		
 		Region divider = new Region();
 		divider.setPrefSize(Card.SKIN_WIDTH, Card.SKIN_HEIGHT);
@@ -45,23 +55,25 @@ public class Field {
 		model = new BorderPane();
 		model.setCenter(group);
 		
-		confirm = new Button("Confirm");		//still must add to the scene graph
-		confirm.setDisable(true);				//setOnAction: must disappear 
+		//TODO: confirm styling with CSS
+		confirm = new Button("Confirm");		
+		confirm.setDisable(true);				
 		
 		VBox box = new VBox();
 		VBox.setVgrow(confirm, Priority.NEVER);
 		
-		box.getChildren().addAll(playerList.get(0).getHand().getModel(), confirm);
+		box.getChildren().addAll(playerList.get(0).getHandModel(), confirm);
 		
-		model.setTop(playerList.get(1).getHand().getModel());
+		model.setTop(playerList.get(1).getHandModel());
 		
 		switch (playerList.size()) {
 			case 3:
-				model.setLeft(playerList.get(2).getHand().getModel());
+				model.setLeft(playerList.get(2).getHandModel());
 				break;
 			case 4:
-				model.setLeft(playerList.get(2).getHand().getModel());
-				model.setRight(playerList.get(3).getHand().getModel());
+				model.setLeft(playerList.get(2).getHandModel());
+				model.setRight(playerList.get(3).getHandModel());
+			default: break;
 		}
 	}
 	
@@ -77,7 +89,8 @@ public class Field {
 	public Player nextPlayer() {
 		if (dropzone.getDrawCount() > 0) {
 			deck.setToDeal(dropzone.getDrawCount());
-			playerList.get((playerList.indexOf(current) + 1) % 4).getHand().pushAll(deck.popAll()); 
+			playerList.get((playerList.indexOf(current) + 1) % 4).drawAll(deck.popAll()); 
+			deck.setToDeal(0);
 		}
 		
 		if (dropzone.requestSuitChange()) {
@@ -127,22 +140,24 @@ public class Field {
 		
 		if (lastIn.getRank() == Rank.EIGHT && lastIn.getSuit() != dropzone.getChangedSuit()) {
 			//create a pseudocard that does not exist (in the cardList or physically in the UI models)
-			current.getHand().markAllEligible(new Card(Rank.EIGHT, dropzone.getChangedSuit(), State.NONE));
+			current.scan(new Card(Rank.EIGHT, dropzone.getChangedSuit(), State.NONE));
 		} else {
-			current.getHand().markAllEligible(lastIn);
+			current.scan(lastIn);
 		}
 	}
 	
+	//listen() is only called in gameflow for HumanPlayer
 	public void listen() {
-		current.markReady(confirm);
+		((HumanPlayer) current).markReady(confirm);
 		
 		confirm.setOnAction(e -> {
-			dropzone.pushAll(current.getHand().popAll());
+			dropzone.pushAll(current.playAll());
 		});
 	}
 	
 	//split list into two from this.depthSearch() onwards and this.depthSearch() backwards
 	//method follows through only if deck recommended size drops below Deck.MIN_CAPAICTY
+	//TODO: Transfer Animation
 	public void recycle() {
 		int splitIndex = dropzone.cardList.size() - dropzone.depthSearch();
 		
@@ -155,10 +170,16 @@ public class Field {
 		
 		dropzone.cardList.removeAll(lists.get(0));
 		
-		Deck temp = new Deck();
-		temp.pushAll(lists.get(0));
-		temp.shuffle();
+		for (Card card : lists.get(0)) {
+			dropzone.getModel().getChildren().remove(card.getModel());
+		}
 		
-		deck.pushAll(temp.cardList);
+		dropzoneCounter.setText(String.valueOf(dropzone.cardList.size() - lists.get(0).size()));
+		
+		List<Card> temp = new ArrayList<>(lists.get(0));
+		Collections.shuffle(temp);
+		
+		deck.pushAll(temp);
+		deckCounter.setText(String.valueOf(deck.cardList.size() - lists.get(0).size()));
 	}
 }

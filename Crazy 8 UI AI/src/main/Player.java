@@ -1,16 +1,18 @@
 package main;
 
+import java.util.List;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 
 public abstract class Player {
 	
-	private final State state;
-	private final Hand hand;
+	protected final State state;
+	protected final Hand hand;
 	
-	private BooleanProperty isSkipped, hasDrawn;
+	protected BooleanProperty isSkipped, hasDrawn;
 	
 	/**Constructor for class Player. Instantiates a Plater with a State and a Hand.
 	 * @param state - The state of the Player. See enum State.
@@ -36,6 +38,10 @@ public abstract class Player {
 	 * */
 	public Hand getHand() {
 		return hand;
+	}
+	
+	public ScrollPane getHandModel() {
+		return hand.getModel();
 	}
 	
 	/**Gets the FX BooleanProperty isSkipped.
@@ -64,15 +70,32 @@ public abstract class Player {
 		this.hasDrawn.set(hasDrawn);
 	}
 	
+	//card = deck.pop()
+	public void draw(Card card) {
+		hand.push(card);
+	}
+	
+	public void drawAll(List<Card> cardList) {
+		hand.pushAll(cardList);
+	}
+	
+	public Card play() {
+		return hand.pop();
+	}
+	
+	public List<Card> playAll() {
+		return hand.popAll();
+	}
+	
+	public void scan(Card lastIn) {
+		hand.markAllEligible(lastIn);
+	}
+	
 	public boolean isHuman() {
 		return this instanceof HumanPlayer;
 	}
 	
 	public boolean hasWon() {
 		return hand.isEmpty();
-	}
-	
-	public void markReady(Button button) {
-		hand.enable(button);
 	}
 }
