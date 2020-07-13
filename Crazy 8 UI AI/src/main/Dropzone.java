@@ -3,12 +3,12 @@ package main;
 import java.util.List;
 import java.util.ArrayList;
 
+import javafx.collections.ListChangeListener;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
-import javafx.geometry.Pos;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
@@ -17,14 +17,16 @@ import main.Card.Suit;
 
 public class Dropzone extends Pile1D {
 
-	private final StackPane model;
 	private IntegerProperty drawCount, skipCount;
 	private BooleanProperty requestSuitChange;
 	
 	private Suit changedSuit;
 	
+	private final StackPane model;
+	private final Label dropzoneCounter;
+	
 	//TODO: Create model for Deck. Model for Dropzone is an inverted Deck model.
-	public Dropzone() {
+	public Dropzone(Card starting) {
 		drawCount = new SimpleIntegerProperty(0);
 		skipCount = new SimpleIntegerProperty(0);
 		requestSuitChange = new SimpleBooleanProperty(false);
@@ -32,13 +34,24 @@ public class Dropzone extends Pile1D {
 		model = new StackPane();
 		
 		//TODO: label highlights for visibility
-		Label dropzoneLabel = new Label("DROPZONE");
-		StackPane.setAlignment(dropzoneLabel, Pos.CENTER);
-		model.getChildren().add(dropzoneLabel);
+		dropzoneCounter = new Label(String.valueOf(cardList.size()));
+		
+		cardList.addListener((ListChangeListener<Card>) c -> {
+			dropzoneCounter.setText(String.valueOf(c.getList().size()));
+		});
+		
+		//bypassing put operation
+		starting.setFaceUp();
+		cardList.add(starting);
+		model.getChildren().add(starting.getModel());
 	}
 	
 	public StackPane getModel() {
 		return model;
+	}
+	
+	public Label getCounter() {
+		return dropzoneCounter;
 	}
 	
 	public Suit getChangedSuit() {
@@ -77,9 +90,11 @@ public class Dropzone extends Pile1D {
 		this.requestSuitChange.set(requestSuitChange);
 	}
 	
+	//Push must add to top, not bottom
 	@Override
 	public void push(Card card) {
 		super.push(card);
+		model.getChildren().add(0, card.getModel());
 		int count = this.depthSearch();	//resets count everytime a card is pushed
 		
 		switch (card.getRank()) {
@@ -140,7 +155,7 @@ public class Dropzone extends Pile1D {
 		int fromIndex = 0;
 		int toIndex = cardList.size() - this.depthSearch();
 		
-		List<Card> popAllList = new ArrayList<>(cardList.subList(0, cardList.size() - this.depthSearch()));
+		List<Card> popAllList = new ArrayList<>(cardList.subList(fromIndex, toIndex));
 		
 		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
 		cardList.removeAll(popAllList);

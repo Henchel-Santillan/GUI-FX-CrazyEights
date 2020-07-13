@@ -1,18 +1,20 @@
 package main;
 
-import java.util.ArrayList;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.util.List;
 import java.util.StringJoiner;
 
 public abstract class Pile1D {
 	
-	protected final List<Card> cardList;
+	protected final ObservableList<Card> cardList;
 	
 	public Pile1D() {
-		cardList = new ArrayList<>();
+		cardList = FXCollections.observableArrayList();
 	}
 	
-	public List<Card> getCardList() {
+	public ObservableList<Card> getCardList() {
 		return cardList;
 	}
 	
@@ -21,7 +23,7 @@ public abstract class Pile1D {
 	}
 	
 	public void push(Card card) {
-		cardList.add(card);
+		cardList.add(0, card);
 	}
 	
 	public void pushAll(List<Card> cardList) {

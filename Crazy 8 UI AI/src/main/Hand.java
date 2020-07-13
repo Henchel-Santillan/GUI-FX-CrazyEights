@@ -92,6 +92,15 @@ public class Hand extends Pile1D {
 		}
 	}
 	
+	//in case a Player decides to draw while in the middle of creating a playList
+	//disable all effects, removeAll from playList
+	public void reset(Card lastIn) {
+		playList.clear();
+		this.disableAllElse(rankList);
+		rankList.clear();
+		this.markAllEligible(lastIn);
+	}
+	
 	//card = deck.pop()
 	@Override
 	public void push(Card card) {
@@ -141,6 +150,7 @@ public class Hand extends Pile1D {
 				} else {
 					playList.clear();
 					this.disableAllElse(rankList);
+					rankList.clear();
 					
 					for (Card playableCard : playableList) {
 						playableCard.setIsPlayable(true);
@@ -154,6 +164,7 @@ public class Hand extends Pile1D {
 	}
 	
 	//cardList = deck.popAll()
+	@Override
 	public void pushAll(List<Card> cardList) {
 		for (Card card : cardList) {
 			this.push(card);

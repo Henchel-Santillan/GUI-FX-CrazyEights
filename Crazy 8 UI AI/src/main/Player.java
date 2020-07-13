@@ -89,6 +89,10 @@ public abstract class Player {
 	
 	public void scan(Card lastIn) {
 		hand.markAllEligible(lastIn);
+		
+		if (this.hasDrawn()) {
+			hand.reset(lastIn);
+		}
 	}
 	
 	public boolean isHuman() {

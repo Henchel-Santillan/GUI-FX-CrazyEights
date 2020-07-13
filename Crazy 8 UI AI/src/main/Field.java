@@ -4,14 +4,18 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import javafx.collections.ListChangeListener;
 
 import javafx.scene.layout.Region;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.geometry.Pos;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
 
 import javafx.stage.Modality;
 import javafx.scene.control.ChoiceDialog;
@@ -31,15 +35,19 @@ public class Field {
 	
 	private final BorderPane model;
 	private final Button confirm;
-	private final Label deckCounter, dropzoneCounter;
 	
+	//TODO: Add algorithm to init dropzone
+	//TODO: Layout of the Field: where to place labels
 	public Field(Player...players) {
 		deck = new Deck();
-		deckCounter = new Label(String.valueOf(deck.cardList.size()));
 		
-		dropzone = new Dropzone();
-		dropzoneCounter = new Label(String.valueOf(dropzone.cardList.size()));
+		deck.cardList.addListener((ListChangeListener<Card> ) c -> {
+			if (c.getList().size() <= Deck.MIN_CAPACITY) {
+				this.recycle();
+			}
+		});
 		
+		dropzone = new Dropzone(deck.pop());
 		playerList = new ArrayList<>();
 		
 		for (Player player : players) {
@@ -48,22 +56,38 @@ public class Field {
 		
 		current = playerList.get(0);
 		
+		model = new BorderPane();
+		//TODO: VBox styling
+		VBox deckBox = new VBox();
+		deckBox.getChildren().addAll(deck.getModel(), new HBox(
+				new Label("DECK"), deck.getCounter()));
+		deckBox.setAlignment(Pos.CENTER);
+		for (Node node : deckBox.getChildren()) {
+			VBox.setVgrow(node, Priority.NEVER);
+		}
+		
+		VBox dropzoneBox = new VBox();
+		dropzoneBox.getChildren().addAll(dropzone.getModel(), new HBox(
+				new Label("DROPZONE"), dropzone.getCounter()));
+		for (Node node : dropzoneBox.getChildren()) {
+			VBox.setVgrow(node,  Priority.NEVER);
+		}
+		
 		Region divider = new Region();
 		divider.setPrefSize(Card.SKIN_WIDTH, Card.SKIN_HEIGHT);
-		Group group = new Group(dropzone.getModel(), divider, deck.getModel());
 		
-		model = new BorderPane();
-		model.setCenter(group);
+		model.setCenter(new Group(deckBox, divider, dropzoneBox));
 		
 		//TODO: confirm styling with CSS
 		confirm = new Button("Confirm");		
 		confirm.setDisable(true);				
 		
-		VBox box = new VBox();
+		VBox playerBox = new VBox();
 		VBox.setVgrow(confirm, Priority.NEVER);
 		
-		box.getChildren().addAll(playerList.get(0).getHandModel(), confirm);
+		playerBox.getChildren().addAll(playerList.get(0).getHandModel(), confirm);
 		
+		//TODO: Change display styles for AI Players
 		model.setTop(playerList.get(1).getHandModel());
 		
 		switch (playerList.size()) {
@@ -133,21 +157,32 @@ public class Field {
 			playerList.get((playerList.indexOf(current) + 1) % playerList.size());
 	}
 	
-	//mark all eligible + dropzone pop
-	//changedSuit: how to determine when to use if state of requestSuitChange always changes?
-	public void mark() {
+	
+	//listen() is only called in gameflow for HumanPlayer
+	/* For this method:
+	 * must run scan 
+	 * must mark ready
+	 * must handle a draw if user chooses to
+	 * how to end?
+	 * */
+	//TODO: Should handle if user cannot go (see Docs).
+	public void listen() {
 		Card lastIn = dropzone.pop();
 		
 		if (lastIn.getRank() == Rank.EIGHT && lastIn.getSuit() != dropzone.getChangedSuit()) {
-			//create a pseudocard that does not exist (in the cardList or physically in the UI models)
 			current.scan(new Card(Rank.EIGHT, dropzone.getChangedSuit(), State.NONE));
 		} else {
 			current.scan(lastIn);
 		}
-	}
-	
-	//listen() is only called in gameflow for HumanPlayer
-	public void listen() {
+
+		deck.top().getModel().setOnMousePressed(e -> {
+			if (!current.hasDrawn()) {
+				current.draw(deck.pop());
+				deck.setIsOnPrompt(false);
+				current.setHasDrawn(true);
+			}
+		});
+		
 		((HumanPlayer) current).markReady(confirm);
 		
 		confirm.setOnAction(e -> {
@@ -155,31 +190,10 @@ public class Field {
 		});
 	}
 	
-	//split list into two from this.depthSearch() onwards and this.depthSearch() backwards
-	//method follows through only if deck recommended size drops below Deck.MIN_CAPAICTY
 	//TODO: Transfer Animation
 	public void recycle() {
-		int splitIndex = dropzone.cardList.size() - dropzone.depthSearch();
-		
-		//lists.get(0) is from dropzone 0 to this.depthSearch() - 1
-		//lists.get(1) is this.depthSearch() to dropzone.cardList.size() - 1
-		List<List<Card>> lists = new ArrayList<>(
-				dropzone.cardList.stream()
-				.collect(Collectors.groupingBy(s -> dropzone.cardList.indexOf(s) >= splitIndex)).values()
-		);
-		
-		dropzone.cardList.removeAll(lists.get(0));
-		
-		for (Card card : lists.get(0)) {
-			dropzone.getModel().getChildren().remove(card.getModel());
-		}
-		
-		dropzoneCounter.setText(String.valueOf(dropzone.cardList.size() - lists.get(0).size()));
-		
-		List<Card> temp = new ArrayList<>(lists.get(0));
+		List<Card> temp = new ArrayList<>(dropzone.popAll());
 		Collections.shuffle(temp);
-		
 		deck.pushAll(temp);
-		deckCounter.setText(String.valueOf(deck.cardList.size() - lists.get(0).size()));
 	}
 }

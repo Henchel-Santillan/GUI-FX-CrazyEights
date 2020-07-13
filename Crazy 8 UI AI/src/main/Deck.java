@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javafx.collections.ListChangeListener;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,7 +16,6 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Background;
@@ -42,15 +43,11 @@ public class Deck extends Pile1D {
 	private IntegerProperty toDeal;
 	private BooleanProperty isOnPrompt;
 	private final StackPane model;
+	private final Label deckCounter;
 	
 	public Deck() {
-		isOnPrompt = new SimpleBooleanProperty(false);
+		isOnPrompt = new SimpleBooleanProperty(true);
 		model = new StackPane();
-		
-		//TODO: Decorate label with CSS styling
-		Label deckLabel = new Label("DECK");
-		StackPane.setAlignment(deckLabel, Pos.CENTER);
-		model.getChildren().add(deckLabel);
 		
 		for (int i = 0; i < Suit.values().length; i++) {
 			for (int j = 0; j < Rank.values().length; j++) {
@@ -61,6 +58,13 @@ public class Deck extends Pile1D {
 			}
 		}
 		
+		//TODO: set CSS styling
+		deckCounter = new Label(String.valueOf(cardList.size()));
+		//add a listener to size everytime it changes
+		cardList.addListener((ListChangeListener<Card>) c -> {
+			deckCounter.setText(String.valueOf(c.getList().size()));
+		});
+		
 		model.backgroundProperty().bind(Bindings.when(isOnPrompt).then(new Background(
 				new BackgroundFill(Color.rgb(0, 255, 255), CornerRadii.EMPTY, Insets.EMPTY))).otherwise(
 						new Background(new BackgroundFill(Color.rgb(0, 0, 0), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -70,6 +74,10 @@ public class Deck extends Pile1D {
 	
 	public StackPane getModel() {
 		return model;
+	}
+	
+	public Label getCounter() {
+		return deckCounter;
 	}
 	
 	public IntegerProperty toDealProperty() {
@@ -99,7 +107,8 @@ public class Deck extends Pile1D {
 	@Override
 	public void push(Card card) {
 		card.setFaceDown();
-		cardList.add(0, card);	//add card to bottom instead of the top
+		super.push(card);	//add card to bottom instead of the top
+		model.getChildren().add(0, card.getModel());
 	}
 	
 	@Override
@@ -118,12 +127,21 @@ public class Deck extends Pile1D {
 		return cardList.remove(cardList.size() - 1);
 	}
 	
+	public Card top() {
+		return cardList.get(cardList.size() - 1);
+	}
+	
 	//used when drawing more than one card: only case is when draw effects are resolved
 	public List<Card> popAll() {
 		int fromIndex = cardList.size() - 1;
 		int toIndex = fromIndex - this.toDeal();	//toDeal() = Dropzone.getDrawCount()
+		
+		List<Card> popAllList = new ArrayList<>(cardList.subList(fromIndex, toIndex));
+		
 		model.getChildren().removeAll(model.getChildren().subList(fromIndex, toIndex));
-		return new ArrayList<Card>(cardList.subList(fromIndex, toIndex));
+		cardList.removeAll(popAllList);
+		
+		return popAllList;
 	}
 	
 	//TODO: add animation for shuffle + sync with audio
