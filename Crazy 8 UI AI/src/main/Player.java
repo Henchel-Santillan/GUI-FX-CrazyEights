@@ -12,7 +12,7 @@ public abstract class Player {
 	protected final State state;
 	protected final Hand hand;
 	
-	protected BooleanProperty isSkipped, hasDrawn;
+	protected BooleanProperty isSkipped, hasDrawn, canPlay;
 	
 	/**Constructor for class Player. Instantiates a Plater with a State and a Hand.
 	 * @param state - The state of the Player. See enum State.
@@ -24,6 +24,7 @@ public abstract class Player {
 		
 		isSkipped = new SimpleBooleanProperty(false);
 		hasDrawn = new SimpleBooleanProperty(false);
+		canPlay = new SimpleBooleanProperty(false);
 	}
 	
 	/**Gets the State of the Player.
@@ -68,6 +69,14 @@ public abstract class Player {
 	
 	public void setHasDrawn(boolean hasDrawn) {
 		this.hasDrawn.set(hasDrawn);
+	}
+	
+	public BooleanProperty canPlayProperty() {
+		return canPlay;
+	}
+	
+	public boolean canPlay() {
+		return canPlay.get();
 	}
 	
 	//card = deck.pop()

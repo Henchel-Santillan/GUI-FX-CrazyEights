@@ -31,5 +31,10 @@
 			<type>2</type>
 			<location>/home/jhr/Programming/eclipse_workspace/Crazy 8 UI AI/RESOURCES/IMAGE</location>
 		</link>
+		<link>
+			<name>src/VIDEO</name>
+			<type>2</type>
+			<location>/home/jhr/Programming/eclipse_workspace/Crazy 8 UI AI/RESOURCES/VIDEO</location>
+		</link>
 	</linkedResources>
 </projectDescription>

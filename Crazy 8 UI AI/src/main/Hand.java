@@ -3,6 +3,9 @@ package main;
 import java.util.List;
 import java.util.ArrayList;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener;
@@ -33,10 +36,12 @@ public class Hand extends Pile1D {
 	private final HBox container;
 	private Card selected;
 	
+	private BooleanProperty hasPlayable;
+	
 	public Hand() {
 		playList = FXCollections.observableArrayList();
-		rankList = new ArrayList<>();
 		playableList = new ArrayList<>();	
+		rankList = new ArrayList<>();
 	
 		container = new HBox();
 		container.setSpacing(2.0d);
@@ -57,6 +62,8 @@ public class Hand extends Pile1D {
 				e.consume();
 			}
 		});
+		
+		hasPlayable = new SimpleBooleanProperty(false);
 	}
 	
 	public ScrollPane getModel() {
@@ -65,7 +72,7 @@ public class Hand extends Pile1D {
 	
 	public void enable(Button button) {
 		playList.addListener((ListChangeListener<Card>) c ->  {
-			boolean positive = c.getList().size() > 1;
+			boolean positive = c.getList().size() > 0;
 			button.setDisable(positive);
 			button.setVisible(positive);
 		});
@@ -88,6 +95,7 @@ public class Hand extends Pile1D {
 					|| card.getRank() == Rank.EIGHT) {
 				card.setIsPlayable(true);
 				playableList.add(card);	
+				hasPlayable.set(true);
 			}
 		}
 	}
