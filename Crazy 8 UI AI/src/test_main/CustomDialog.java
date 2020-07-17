@@ -6,10 +6,15 @@ public class CustomDialog {
 	
 	private final Stage parent, modal;
 	
+	//TODO: Decide on CustomDialog frame pane (e.g. GridPane)
 	public CustomDialog(Stage parent) {
 		this.parent = parent;
 		
 		modal = new Stage();
+	}
+	
+	public Stage getParent() {
+		return parent;
 	}
 	
 	public void setWindowTitle(String title) {
@@ -23,4 +28,8 @@ public class CustomDialog {
 	public void setContentText(String contentText) {
 		
 	}
+	
+	//TODO: Brainstorm a list
+	
+	
 }

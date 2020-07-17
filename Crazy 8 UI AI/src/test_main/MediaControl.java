@@ -114,7 +114,7 @@ public class MediaControl {
 	}
 	
 	public void addMediaTab(MediaTab mediaTab) {
-		Button tab = mediaTab.getTabModel();
+		Button tab = mediaTab.getModel();
 		
 		store.add(tab);
 		mediaBox.refresh();

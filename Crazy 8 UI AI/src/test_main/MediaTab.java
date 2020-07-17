@@ -15,14 +15,14 @@ public class MediaTab {
 	
 	public static final double MAX_WIDTH = 250.0d;
 	
-	private final Button tabModel;
+	private final Button model;
 	private final Media media;
 	
 	private StringProperty name;
 	private StringProperty dateTime;
 	
 	public MediaTab(Media media /*, Image thumbnail*/) {
-		tabModel = new Button();
+		model = new Button();
 		//tabModel.setGraphic();	//TODO: capture video thumbnail + background recorder
 		
 		this.media = media;
@@ -30,8 +30,8 @@ public class MediaTab {
 		dateTime = new SimpleStringProperty();
 	}
 	
-	public Button getTabModel() {
-		return tabModel;
+	public Button getModel() {
+		return model;
 	}
 	
 	public Media getMedia() {
@@ -48,7 +48,7 @@ public class MediaTab {
 	
 	public void setName(String name) {
 		this.name.set(name);
-		tabModel.setText(name);
+		model.setText(name);
 	}
 	
 	public StringProperty dateTimeProperty() {
