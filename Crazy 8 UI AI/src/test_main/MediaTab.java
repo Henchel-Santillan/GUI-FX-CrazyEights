@@ -8,6 +8,8 @@ import java.time.ZoneId;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.control.Button;
 
@@ -21,17 +23,22 @@ public class MediaTab {
 	private StringProperty name;
 	private StringProperty dateTime;
 	
-	public MediaTab(Media media /*, Image thumbnail*/) {
+	public MediaTab(String name, Media media, Image thumbnail) {
 		model = new Button();
-		//tabModel.setGraphic();	//TODO: capture video thumbnail + background recorder
+		model.setGraphic(new ImageView(thumbnail));	//TODO: capture video thumbnail + background recorder
 		
 		this.media = media;
-		name = new SimpleStringProperty();
+		this.name = new SimpleStringProperty(name);
 		dateTime = new SimpleStringProperty();
 	}
 	
 	public Button getModel() {
 		return model;
+	}
+	
+	public boolean hasModel(Button button) {
+		if (button.equals(model)) return true;
+		return false;
 	}
 	
 	public Media getMedia() {
@@ -70,5 +77,9 @@ public class MediaTab {
 			LocalDateTime local = LocalDateTime.now();
 			dateTime.set(formatter.format(local) + ", LOCAL");
 		}
+	}
+	
+	public String getMetaData() {
+		return this.getName() + "\n" + this.getDateTime();
 	}
 }

@@ -1,5 +1,6 @@
 package test_main;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
@@ -26,6 +27,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 
+//TODO: 'clear' button at the bottom of MediaBar
 public class MediaBar {
 	
 	//TODO: The control adding to MediaBar should always compare against capacity. addMediaTab() is blind to this.
@@ -34,6 +36,7 @@ public class MediaBar {
 	private final VBox model;
 	private final ListView<Button> bar;
 	
+	private final ObservableList<MediaTab> mediaTabs;
 	private final ObservableList<Button> store;
 	private final FilteredList<Button> storeFiltered;
 	private final SortedList<Button> storeSorted;
@@ -45,6 +48,8 @@ public class MediaBar {
 	
 	//NOTE: queueList must be the ObservableList backing the Queue. Will be combined with API Queue
 	public MediaBar(ObservableList<Button> queueList) {
+		
+		mediaTabs = FXCollections.observableArrayList();
 		store = FXCollections.observableArrayList();
 		storeFiltered = new FilteredList<>(store, p -> true);
 		storeSorted = new SortedList<>(storeFiltered);
@@ -70,19 +75,25 @@ public class MediaBar {
 			});
 		});
 		
+		//TODO:  SORTER DOES NOT MAKE SENSE =(
 		sorter = new ChoiceBox<>();
 		sorter.getItems().addAll("Restore All", "Name", "Date Added");
 		sorter.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
 			switch ((Integer) newValue) {
 				case 0:
 					bar.setItems(storeSorted);
-					//TODO: Reset the choicebox
 					break;
 				case 1:
-					//TODO: Sort the selection by Name (Alpha-Order)
+					FXCollections.sort(storeSorted, new Comparator<Button>() {
+						public int compare(Button one, Button two) {
+							return one.getText().compareTo(two.getText());
+						}
+					});
+					
+					bar.setItems(storeSorted);
 					break;
 				case 2:
-					//TODO: Sort the selection by Date Added (most recent first)
+					//TODO: Sort by date
 					break;
 			}
 		});
@@ -101,6 +112,7 @@ public class MediaBar {
 		}
 		
 		barMenuCtx = new ContextMenu();
+		barMenuCtx.setAutoHide(true);
 		MenuItem addToQueue = new MenuItem("Add To Queue");
 		addToQueue.setOnAction( e-> {
 			//TODO: Add to Queue
@@ -122,6 +134,7 @@ public class MediaBar {
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.get() == ButtonType.OK) {
 					messenger.setText("Media Tab at " + store.indexOf(removed) + " deleted" );
+					mediaTabs.remove(this.hasThisModel(removed));
 					store.remove(removed);
 					bar.refresh();
 				} else {
@@ -143,6 +156,7 @@ public class MediaBar {
 	public void addMediaTab(MediaTab mediaTab) {		
 		Button mediaTabModel = mediaTab.getModel();
 		
+		mediaTabs.add(mediaTab);
 		store.add(mediaTabModel);
 		bar.refresh();
 		
@@ -151,5 +165,14 @@ public class MediaBar {
 			barMenuCtx.show(mediaTabModel, e.getScreenX(), e.getScreenY());
 			e.consume();
 		});
+	}
+	
+	public MediaTab hasThisModel(Button button) {
+		for (MediaTab mediaTab : mediaTabs) {
+			if (mediaTab.hasModel(button)) {
+				return mediaTab;
+			}
+		}
+		return null;
 	}
 }

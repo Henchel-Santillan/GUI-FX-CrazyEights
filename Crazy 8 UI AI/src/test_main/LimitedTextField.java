@@ -30,6 +30,11 @@ public class LimitedTextField extends TextField {
 	public boolean setMaxLength(int maxLength) {
 		if (maxLength > 0) {
 			this.maxLength.set(maxLength);
+			//Applicable only if the second overloaded constructor is used
+			if (this.getText().length() > maxLength) {
+				this.replaceText(0, maxLength, this.getText());
+			}
+			
 			return true;
 		}
 		throw new IllegalArgumentException("Max Length must be greater than 0.");

@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 public class MediaViewer {
 
 	private BooleanProperty repeatRequested, stopRequested, endRequested;  
+	//TODO: ToggleSwitch control for repeatRequested
 	
 	private final VBox model;
 	private final MediaView viewer;
@@ -177,16 +178,15 @@ public class MediaViewer {
 		});
 	}
 	
+	public MediaPlayer getMediaPlayer() {
+		return player;
+	}
+	
 	//Called when a media resource from the MediaBar is clicked; called in MediaControl in setOnAction for added Tabs
 	//Media media may be changed to MediaPlayer if local player cannot be used
 	/*public void autoplay(Media media) {
 		MediaPlayer player = new MediaPlayer(media);
 		player.setAutoPlay(true);
 		viewer.setMediaPlayer(player);
-	}*/
-	
-	//Called when a request to play the MediaPlayer in the MediaView through the ustom Play button
-	public void play() {
-		
-	}
+	}*/	
 }
