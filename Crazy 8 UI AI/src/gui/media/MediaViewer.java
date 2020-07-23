@@ -1,4 +1,4 @@
-package test_main;
+package gui.media;
 
 import javafx.util.Duration;
 import javafx.application.Platform;
