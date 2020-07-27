@@ -1,8 +1,8 @@
 package gui.dialog;
 
-import gui.LimitedTextField;
-
 import java.util.Optional;
+
+import gui.util.LimitedTextField;
 import javafx.util.Pair;
 
 import javafx.stage.Stage;

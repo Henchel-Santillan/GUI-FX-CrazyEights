@@ -1,4 +1,4 @@
-package gui;
+package gui.util;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -17,6 +17,16 @@ public class LimitedTextField extends TextField {
 	public LimitedTextField(String text) {
 		super(text);
 		maxLength = new SimpleIntegerProperty(255);
+	}
+	
+	public LimitedTextField(int maxLength) {
+		this();
+		this.setMaxLength(maxLength);
+	}
+	
+	public LimitedTextField(String text, int maxLength) {
+		this(text);
+		this.setMaxLength(maxLength);
 	}
 	
 	public IntegerProperty maxLengthProperty() {
