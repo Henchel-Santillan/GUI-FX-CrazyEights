@@ -1,6 +1,6 @@
 package gui.tests;
 
-import gui.util.WeightBar;
+import gui.util.WeightBox;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 
 import javafx.scene.layout.Pane;
 
-public class WeightBarTest extends Application {
+public class WeightBoxTest extends Application {
 
 	Pane pane;
 	Scene scene;
@@ -18,7 +18,7 @@ public class WeightBarTest extends Application {
 		pane = new Pane();
 		scene = new Scene(pane, 500, 500);
 		
-		pane.getChildren().add(new WeightBar(100).getModel());
+		pane.getChildren().add(new WeightBox(100).getModel());
 		stage.setScene(scene);
 		stage.show();
 	}
