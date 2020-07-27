@@ -43,6 +43,8 @@ public class MediaViewer {
 		endRequested = new SimpleBooleanProperty(false);
 		
 		viewer = new MediaView();
+		viewer.setMediaPlayer(player);
+		viewer.setPreserveRatio(true);
 		
 		play = new Button(">");
 		play.setOnAction(e -> {
@@ -181,11 +183,10 @@ public class MediaViewer {
 		return player;
 	}
 	
-	//Called when a media resource from the MediaBar is clicked; called in MediaControl in setOnAction for added Tabs
-	//Media media may be changed to MediaPlayer if local player cannot be used
-	/*public void autoplay(Media media) {
-		MediaPlayer player = new MediaPlayer(media);
-		player.setAutoPlay(true);
-		viewer.setMediaPlayer(player);
-	}*/	
+	public void setPrefSize(double width, double height) {
+		viewer.setFitWidth(width);
+		viewer.setFitHeight(height);
+	}
+	
+
 }

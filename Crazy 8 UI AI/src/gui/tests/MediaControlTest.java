@@ -18,7 +18,7 @@ public class MediaControlTest extends Application {
 	public void start(Stage stage) {
 		screen = Screen.getPrimary().getVisualBounds();
 		
-		mControl = new MediaControl();
+		mControl = new MediaControl(stage);
 		scene = new Scene(mControl.getModel(), screen.getWidth(), screen.getHeight());
 		
 		stage.setScene(scene);

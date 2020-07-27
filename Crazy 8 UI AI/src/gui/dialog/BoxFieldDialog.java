@@ -20,6 +20,7 @@ public class BoxFieldDialog<T> extends DialogUtil {
 	
 	private Pair<Optional<String>, Optional<T>> result;
 	
+	//TODO: Issue with result Field returning NullPointer. May need to implement in line with blocking dialog.
 	public BoxFieldDialog(Stage parent) {
 		super(parent);
 		
@@ -29,16 +30,13 @@ public class BoxFieldDialog<T> extends DialogUtil {
 		field = new LimitedTextField();
 		
 		HBox fieldBox = new HBox(labelField, field);
+		frame.getChildren().add(frame.getChildren().size() - 1, fieldBox);
 		
 		labelBox = new Label();
 		box = new ChoiceBox<>();
 		
 		HBox boxBox = new HBox(labelBox, box);
-		
-		cancel.setOnAction( e-> {
-			modal.close();
-			e.consume();
-		});
+		frame.getChildren().add(frame.getChildren().size() - 1, boxBox);
 		
 		field.focusedProperty().addListener(c -> {
 			if (field.getText().trim().isEmpty()) {
@@ -49,8 +47,6 @@ public class BoxFieldDialog<T> extends DialogUtil {
 				ok.setDisable(false);
 			}
 		});
-		
-		frame.getChildren().addAll(fieldBox, boxBox);
 	}
 	
 	public void setFieldMaxLength(int maxLength) {
@@ -71,7 +67,6 @@ public class BoxFieldDialog<T> extends DialogUtil {
 	
 	public void setBoxItems(ObservableList<? extends T> items) {
 		box.getItems().addAll(items);
-		box.setValue(box.getItems().get(0));
 	}
 	
 	public void setLabelField(String labelField) {
@@ -82,12 +77,16 @@ public class BoxFieldDialog<T> extends DialogUtil {
 		this.labelBox.setText(labelBox);
 	}
 	
+	public boolean isPresent() {
+		return (result.getKey().isPresent() && result.getValue().isPresent()) ? true : false;
+	}
+	
 	public void show() {	
 		modal.showAndWait();
 		ok.setOnAction(e -> {
 			result = new Pair<>(Optional.ofNullable(field.getText()), Optional.ofNullable(box.getValue()));
-			modal.close();
 			e.consume();
+			modal.close();
 		});
 	}
 	

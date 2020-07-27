@@ -4,11 +4,23 @@ import gui.dialog.BrowseDialog;
 import gui.dialog.BrowseDialog.BrowseType;
 
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+
+import java.net.URISyntaxException;
 
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 
+import java.io.File;
+
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 
@@ -34,6 +46,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+
 public class MediaControl {
 
 	private final BorderPane model;
@@ -47,15 +62,19 @@ public class MediaControl {
 	private final VBox queueBox;
 	private final Label messenger;
 	private final Button queueClear, queuePlay;
-	private final MenuBar navbar;
+	private final HBox topBar;
 	private final ContextMenu queueMenuCtx;
 	
 	private Media playing;	//TODO: playing = null. Should have a PlaceHolder Video that cannot be deleted.
 	private Button selected;
 	
+	private StringProperty destination;
+	
 	//TODO: Placeholder for playing if no Media found in library
+	//TODO: Append error message to a location (probably model bottom) if MediaException
 	public MediaControl(Stage parent) {
 		
+		destination = new SimpleStringProperty();
 		messenger = new Label();
 		queueList = FXCollections.observableArrayList();
 
@@ -204,29 +223,95 @@ public class MediaControl {
 			});
 		});
 		
-		navbar = new MenuBar();
+		
+		Button back = new Button();
+		
+		try {
+			ImageView graphic = new ImageView(new Image(getClass().getResource(
+					"/IMAGE/back_arrow.png").toURI().toString()));
+			graphic.setSmooth(true);
+			graphic.setPreserveRatio(true);
+			graphic.setFitWidth(20.0d);
+			graphic.setFitHeight(15.0d);
+			
+			back.setGraphic(graphic);
+			
+		} catch (URISyntaxException e) {
+			Logger.getLogger(MediaControl.class.getName()).log(Level.SEVERE, null, e);
+			
+		} catch (Exception e) {
+			Logger.getLogger(MediaControl.class.getName()).log(Level.SEVERE, null, e);
+			
+		}
+		
+		back.setTooltip(new Tooltip("Back"));
+		
+		MenuBar navbar = new MenuBar();
 		Menu file = new Menu("File");
-		Menu edit = new Menu("Edit");
 		
 		MenuItem changeDestination = new MenuItem("Edit Destination...");
 		changeDestination.setOnAction(e -> {
-			BrowseDialog browser = new BrowseDialog(parent, BrowseType.FOLDER);
+			/*BrowseDialog browser = new BrowseDialog(parent, BrowseType.FOLDER );
+			browser.show();
+			destination.set(browser.getResult().get());
+					
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Destination Change");
+			alert.setContentText("Local folder destination changed successfully.");*/
+			
 			e.consume();
 		});
 		
+		//TODO: Selection mechanism for determining which media to export
 		MenuItem exportMediaAs = new MenuItem("Export Media As...");
-		exportMediaAs.setOnAction(e -> {
-			e.consume();
+		
+		exportMediaAs.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				FileChooser saver = new FileChooser();
+				saver.setTitle("Export Replay Media");
+				
+				File file = saver.showSaveDialog(parent);
+				
+				if (file != null) {
+					//TODO: Determine next steps
+				}
+				
+			
+				e.consume();
+			}
 		});
 		
+		file.getItems().addAll(changeDestination, exportMediaAs);
+		navbar.getMenus().add(file);
+		
+		topBar = new HBox(back, navbar);
+		topBar.setAlignment(Pos.CENTER_LEFT);
 		
 		mediaBar = new MediaBar(queueList);
+		
+		//TODO: Playback  not visible
+		try {
+			playing = new Media(getClass().getResource(
+					"/VIDEO/media_preview.mp4").toURI().toString());
+			
+		} catch (URISyntaxException e) {
+			Logger.getLogger(MediaControl.class.getName()).log(Level.SEVERE, null, e);
+			
+		} catch (Exception e) {
+			Logger.getLogger(MediaControl.class.getName()).log(Level.SEVERE, null, e);
+		}
+		
+		
 		MediaPlayer player = new MediaPlayer(playing);
 		player.setAutoPlay(true);
 		
 		mediaViewer = new MediaViewer(player);
+		mediaViewer.setPrefSize(480, 270);
+		
 		model = new BorderPane();
 		
+		model.setTop(topBar);
 		model.setLeft(queueBar);
 		model.setRight(mediaBar.getModel());
 		model.setCenter(mediaViewer.getModel());

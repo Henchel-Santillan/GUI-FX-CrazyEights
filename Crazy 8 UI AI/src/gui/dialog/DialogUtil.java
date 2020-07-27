@@ -1,8 +1,10 @@
 package gui.dialog;
 
 import javafx.beans.property.StringProperty;
-import javafx.geometry.Pos;
 import javafx.beans.property.SimpleStringProperty;
+
+import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 
 import javafx.stage.Stage;
 import javafx.stage.Modality;
@@ -24,13 +26,14 @@ public abstract class DialogUtil {
 	
 	protected final Button ok, cancel;
 	
-	protected final Label header, content, warning;
+	protected final Label content, warning;
 	protected StringProperty warningText;
 	
+	
+	//TODO: Layout Issue: Fields are not aligned. Use GridPane instead of VBox
 	public DialogUtil(Stage parent) {
 		this.parent = parent;
 		
-		header = new Label();
 		content = new Label();
 		
 		warning = new Label();
@@ -38,6 +41,8 @@ public abstract class DialogUtil {
 		warningText = new SimpleStringProperty("");
 	
 		frame = new VBox();
+		frame.setPadding(new Insets(20.0d));
+		frame.setSpacing(5.0d);
 		scene = new Scene(frame);
 		
 		modal = new Stage(StageStyle.UTILITY);
@@ -46,6 +51,8 @@ public abstract class DialogUtil {
 		modal.initModality(Modality.APPLICATION_MODAL);
 		
 		ok = new Button("OK");
+		
+		//TODO: Cancel raises NullPointerException
 		cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
 			modal.close();
@@ -55,7 +62,7 @@ public abstract class DialogUtil {
 		HBox buttonBox = new HBox(ok, cancel);
 		buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
 		
-		frame.getChildren().addAll(header, content, warning, buttonBox);
+		frame.getChildren().addAll(content, warning, buttonBox);
 	}
 	
 	public final Stage getParent() {
@@ -64,11 +71,6 @@ public abstract class DialogUtil {
 	
 	public final void setWindowTitle(String title) {
 		modal.setTitle(title);
-	}
-	
-	//TODO: Differentiate between header and content text
-	public final void setHeaderText(String headerText) {
-		header.setText(headerText);
 	}
 	
 	public final void setContentText(String contentText) {
