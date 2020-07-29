@@ -44,9 +44,9 @@ public class WeightBox {
 		});
 		
 		box.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> {
-			String input = box.getEditor().getText();
+			String input = box.getEditor().getText().trim();
 			
-			if (!newValue && input!= null && !input.trim().isEmpty()) {
+			if (!newValue && input != null && !input.isEmpty()) {
 				int filtered = (Integer.valueOf(input) > maxSize) ? maxSize : Integer.valueOf(input);
 				box.setValue(filtered);
 				current.set(box.getValue());
@@ -81,23 +81,23 @@ public class WeightBox {
 		}
 	}
 	
-	public HBox getModel() {
+	public final HBox getModel() {
 		return model;
 	}
 	
-	public IntegerProperty maxSizeProperty() {
+	public final IntegerProperty maxSizeProperty() {
 		return maxSize;
 	}
 	
-	public int getMaxSize() {
+	public final int getMaxSize() {
 		return maxSize.get();
 	}
 	
-	public IntegerProperty currentProperty() {
+	public final IntegerProperty currentProperty() {
 		return current;
 	}
 	
-	public int getCurrent() {
+	public final int getCurrent() {
 		return current.get();
 	}
 }

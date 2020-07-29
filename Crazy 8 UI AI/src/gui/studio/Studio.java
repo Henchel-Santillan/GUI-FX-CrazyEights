@@ -67,7 +67,8 @@ public class Studio {
 		}
 		
 		//CENTER + RIGHT
-		canvas = new Canvas();
+		//TODO: Find right aspect ratio to translate seamlessly into card back.
+		canvas = new Canvas(500, 500);
 		canvas.setOnMouseMoved(e -> {
 			position.setText(String.valueOf(e.getScreenX()) + "," + String.valueOf(e.getScreenY()));
 			e.consume();
