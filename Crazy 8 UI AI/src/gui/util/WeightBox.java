@@ -23,6 +23,9 @@ public class WeightBox {
 	private ReadOnlyIntegerWrapper current;
 	
 	public WeightBox(int maxSize) {
+		if (maxSize <= 0) 
+			throw new IllegalArgumentException("maxSize must be greater than 0.");
+		
 		this.maxSize = new ReadOnlyIntegerWrapper(maxSize);
 		current = new ReadOnlyIntegerWrapper();
 		

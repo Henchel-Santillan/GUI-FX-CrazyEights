@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
 //Expires after a single session (e.g. when back is clicked)
+//Represents a static change and update manager
 public class ToolHistory {
 
 	private final VBox model;

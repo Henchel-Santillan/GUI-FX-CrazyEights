@@ -1,6 +1,6 @@
 package gui.studio;
 
-import gui.util.WeightBar;
+import gui.util.WeightBox;
 
 import javafx.scene.layout.HBox;
 
@@ -12,8 +12,14 @@ import javafx.scene.control.MenuItem;
 public class TaskBar {
 
 	private final HBox model;
+	private final WeightBox fontBox;
+	
 	
 	public TaskBar() {
 		model = new HBox();
+	}
+	
+	public HBox getModel() {
+		return model;
 	}
 }

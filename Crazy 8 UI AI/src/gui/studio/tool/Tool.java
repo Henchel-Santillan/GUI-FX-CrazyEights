@@ -1,4 +1,4 @@
-package gui.studio;
+package gui.studio.tool;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.StringProperty;
