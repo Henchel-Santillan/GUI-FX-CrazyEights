@@ -41,6 +41,7 @@ public class BoxFieldDialogTest extends Application {
 		
 		BoxFieldDialog<String> dialog = new BoxFieldDialog<>(stage);
 		dialog.setFieldNumericOnly();
+		dialog.setWarningText("All fields are required.");
 		dialog.setWindowTitle("Test");
 		dialog.setContentText("Hello World! Dialog Test.");
 		dialog.setBoxItems(list);
@@ -50,9 +51,9 @@ public class BoxFieldDialogTest extends Application {
 		
 		button.setOnAction(e -> {
 			dialog.show();
-			if (dialog.isPresent()) {
+			if (dialog.hasResult()) {
 				fieldLabel.setText(dialog.getResult().getKey().get());
-				boxLabel.setText(dialog.getResult().getKey().get());
+				boxLabel.setText(dialog.getResult().getValue().get());
 			}
 			
 			e.consume();

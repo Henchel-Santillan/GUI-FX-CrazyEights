@@ -22,7 +22,7 @@ import javafx.scene.control.MenuItem;
 //TODO: Find all image resources for icons and name appropriately
 public class TaskBar {
 
-	private final HBox model;
+	private final HBox model, filterBox, generalBox, textBox, shapeBox;
 	private final WeightBox fontBox;
 	private final ToggleGroup filter, general, text, shape;
 	
@@ -37,7 +37,40 @@ public class TaskBar {
 		RadioButton select = new RadioButton();
 		RadioButton sketch = new RadioButton();
 		RadioButton textbox = new RadioButton();
+		
+		select.setOnAction(e -> {
+			//TODO: ImageCursor class for custom cursors (i.e. for each Tool)
+			//owner.setCursor();
+			e.consume();
+		});
+		
+		
+		sketch.setOnAction(e -> {
+			e.consume();
+		});
+		
+		
+		textbox.setOnAction(e -> {
+			//TODO: Create new TextBox
+			e.consume();
+		});
+		
 		filter.getToggles().addAll(select, sketch, textbox);
+		filterBox = new HBox(select, sketch, textbox);
+		
+		general = new ToggleGroup();
+		RadioButton fill = new RadioButton();
+		RadioButton borderFill = new RadioButton();
+		//borderWeight or width is WeightBox
+		//borderstyle --> should be a menu with a list of items
+		//
+		
+		generalBox = new HBox(fill, borderFill);
+		
+		text = new ToggleGroup();
+		
+		shape = new ToggleGroup();
+		
 		
 		try {
 			//TODO: Put in an icon iterable?
@@ -60,38 +93,15 @@ public class TaskBar {
 				((RadioButton) filter.getToggles().get(i)).setGraphic(icons[i]);
 			}
 			
+			
+			
 		} catch (URISyntaxException e) {
 			Logger.getLogger(TaskBar.class.getName()).log(Level.SEVERE, null, e);
 			
 		} catch (Exception e) {
 			Logger.getLogger(TaskBar.class.getName()).log(Level.SEVERE, null, e);
 		}
-		
-		
-		select.setOnAction(e -> {
-			//TODO: ImageCursor class for custom cursors (i.e. for each Tool)
-			//owner.setCursor();
-			e.consume();
-		});
-		
-		
-		sketch.setOnAction(e -> {
-			e.consume();
-		});
-		
-		
-		textbox.setOnAction(e -> {
-			e.consume();
-		});
-		
-		
-		general = new ToggleGroup();
-		text = new ToggleGroup();
-		
-		shape = new ToggleGroup();
-		
-		
-		
+
 		model = new HBox();
 	}
 	

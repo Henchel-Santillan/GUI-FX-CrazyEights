@@ -1,8 +1,9 @@
 package gui.dialog;
 
-import java.util.Optional;
 
 import gui.util.LimitedTextField;
+
+import java.util.Optional;
 import javafx.util.Pair;
 
 import javafx.stage.Stage;
@@ -23,74 +24,87 @@ public class BoxFieldDialog<T> extends DialogUtil {
 	//TODO: Issue with result Field returning NullPointer. May need to implement in line with blocking dialog.
 	public BoxFieldDialog(Stage parent) {
 		super(parent);
-		
-		modal.setResizable(false);
+	
+		result = new Pair<>(null, null);
 		
 		labelField = new Label();
 		field = new LimitedTextField();
 		
 		HBox fieldBox = new HBox(labelField, field);
-		frame.getChildren().add(frame.getChildren().size() - 1, fieldBox);
+		frame.getChildren().add(frame.getChildren().size() - 2, fieldBox);
 		
 		labelBox = new Label();
 		box = new ChoiceBox<>();
 		
 		HBox boxBox = new HBox(labelBox, box);
-		frame.getChildren().add(frame.getChildren().size() - 1, boxBox);
+		frame.getChildren().add(frame.getChildren().size() - 2, boxBox);
 		
-		field.focusedProperty().addListener(c -> {
-			if (field.getText().trim().isEmpty()) {
-				warning.setText(warningText.get());
-				ok.setDisable(true);
-			} else {
-				warning.setText("");
-				ok.setDisable(false);
+		field.focusedProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue) {
+				if (field.getText().trim().isEmpty()) {
+					warning.setVisible(true);
+					ok.setDisable(true);
+				} else {
+					warning.setVisible(false);
+					ok.setDisable(false);
+				}
 			}
+		});
+		
+		field.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue != null && !newValue.trim().isEmpty()) {
+				warning.setVisible(false);
+				ok.setDisable(false);
+			} else {
+				warning.setVisible(true);
+				ok.setDisable(true);
+			}
+		});
+		
+		ok.setOnAction(e -> {
+			result = new Pair<>(Optional.of(field.getText()), Optional.of(box.getValue()));
+			modal.hide();
+			e.consume();
 		});
 	}
 	
-	public void setFieldMaxLength(int maxLength) {
+	public final void setFieldMaxLength(int maxLength) {
 		field.setMaxLength(maxLength);
 	}
 	
-	public void setFieldNumericOnly() {
+	public final void setFieldNumericOnly() {
 		field.setNumericOnly();
 	}
 	
-	public void setFieldAlphaOnly() {
+	public final void setFieldAlphaOnly() {
 		field.setAlphaOnly();
 	}
 	
-	public void setBoxValue(T value) {
+	public final void setBoxValue(T value) {
 		box.setValue(value);
 	}
 	
-	public void setBoxItems(ObservableList<? extends T> items) {
+	public final void setBoxItems(ObservableList<? extends T> items) {
 		box.getItems().addAll(items);
+		box.setValue(box.getItems().get(0));
 	}
 	
-	public void setLabelField(String labelField) {
+	public final void setLabelField(String labelField) {
 		this.labelField.setText(labelField);
 	}
 	
-	public void setLabelBox(String labelBox) {
+	public final void setLabelBox(String labelBox) {
 		this.labelBox.setText(labelBox);
 	}
 	
-	public boolean isPresent() {
-		return (result.getKey().isPresent() && result.getValue().isPresent()) ? true : false;
+	public final boolean hasResult() {
+		if (result.getKey() == null || result.getValue() == null) {
+			return false;
+		}
+		return true;
 	}
-	
-	public void show() {	
-		modal.showAndWait();
-		ok.setOnAction(e -> {
-			result = new Pair<>(Optional.ofNullable(field.getText()), Optional.ofNullable(box.getValue()));
-			e.consume();
-			modal.close();
-		});
-	}
-	
-	public Pair<Optional<String>, Optional<T>> getResult() {
+
+	public final Pair<Optional<String>, Optional<T>> getResult() {
 		return result;
 	}
 }

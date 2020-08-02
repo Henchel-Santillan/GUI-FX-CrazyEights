@@ -1,8 +1,5 @@
 package gui.dialog;
 
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 
@@ -27,18 +24,15 @@ public abstract class DialogUtil {
 	protected final Button ok, cancel;
 	
 	protected final Label content, warning;
-	protected StringProperty warningText;
 	
-	
-	//TODO: Layout Issue: Fields are not aligned. Use GridPane instead of VBox
 	public DialogUtil(Stage parent) {
 		this.parent = parent;
 		
 		content = new Label();
 		
 		warning = new Label();
+		warning.setVisible(false);
 		warning.setTextFill(Color.RED);
-		warningText = new SimpleStringProperty("");
 	
 		frame = new VBox();
 		frame.setPadding(new Insets(20.0d));
@@ -48,11 +42,12 @@ public abstract class DialogUtil {
 		modal = new Stage(StageStyle.UTILITY);
 		modal.setScene(scene);
 		modal.initOwner(parent);
-		modal.initModality(Modality.APPLICATION_MODAL);
+		modal.initModality(Modality.WINDOW_MODAL);
+		modal.setResizable(true);
 		
 		ok = new Button("OK");
+		ok.setDisable(true);
 		
-		//TODO: Cancel raises NullPointerException
 		cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
 			modal.close();
@@ -78,7 +73,11 @@ public abstract class DialogUtil {
 	}
 	
 	public final void setWarningText(String warningText) {
-		this.warningText.set(warningText);
+		warning.setText(warningText);
+	}
+	
+	public final void show() {
+		modal.showAndWait();
 	}
 	
 	/*public void addPair(DialogPair pair) {
