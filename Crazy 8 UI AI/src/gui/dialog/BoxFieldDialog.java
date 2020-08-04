@@ -63,7 +63,7 @@ public class BoxFieldDialog<T> extends DialogUtil {
 		
 		ok.setOnAction(e -> {
 			result = new Pair<>(Optional.of(field.getText()), Optional.of(box.getValue()));
-			modal.hide();
+			modal.close();
 			e.consume();
 		});
 	}

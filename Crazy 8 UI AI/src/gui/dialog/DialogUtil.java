@@ -79,8 +79,4 @@ public abstract class DialogUtil {
 	public final void show() {
 		modal.showAndWait();
 	}
-	
-	/*public void addPair(DialogPair pair) {
-		frame.getChildren().add(frame.getChildren().size() - 3, pair.getModel());
-	}*/
 }

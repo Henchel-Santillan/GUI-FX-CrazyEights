@@ -16,6 +16,7 @@ public class HistoryManager {
 	
 	private final ActionQueue actionQueue;
 	private final Canvas owner;
+	private Action selected;
 	
 	public HistoryManager(Canvas owner) {
 		this.owner = owner;
@@ -25,7 +26,7 @@ public class HistoryManager {
 	public void addAction(Tool tool, boolean attributeCommitEnabled, int width, int height) {
 		if (actionQueue.getCurrent() + 1 >= CAP) {
 			Action removed = actionQueue.poll();
-			//TODO: Do something with removed.
+			//TODO: Write removed meta data to status bar.
 		}
 		
 		GraphicsContext gc = owner.getGraphicsContext2D();
@@ -39,5 +40,15 @@ public class HistoryManager {
 		
 		actionQueue.offer(new Action(tool, owner.snapshot(
 				params, new WritableImage(width, height))));
+		
+		selected = actionQueue.peek();
+	}
+	
+	public void undo() {
+		
+	}
+	
+	public void redo() {
+		
 	}
 }

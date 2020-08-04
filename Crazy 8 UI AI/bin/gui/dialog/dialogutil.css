@@ -1,0 +1,10 @@
+/*Stylesheet for all classes that extend DialogUtil.*/ 
+.ok-button {
+	-fx-fill: rgb(0, 100, 0)
+	
+}
+
+.cancel-button {
+	
+}
+
