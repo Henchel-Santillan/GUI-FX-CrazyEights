@@ -17,11 +17,14 @@ import javafx.scene.control.Button;
 //TODO: Remove items OR maxSize attribute
 public class WeightBox {
 
+	public static final int DEFAULT = 14;
+	
 	private final HBox model;
 	private final ComboBox<Integer> box;
 	private final Button minus, plus;
 	
 	private final ReadOnlyIntegerWrapper maxSize;
+	//TODO: is there a verifiable need for current?
 	private ReadOnlyIntegerWrapper current;
 	
 	public WeightBox(int maxSize) {
@@ -38,6 +41,7 @@ public class WeightBox {
 		
 		box.selectionModelProperty().addListener((observable, oldValue, newValue) -> {
 			current.set(newValue.getSelectedItem());
+			box.setValue(current.get());
 		});
 		
 		box.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
@@ -75,6 +79,9 @@ public class WeightBox {
 			}
 			e.consume();
 		});
+		
+		current.set(DEFAULT);
+		box.setValue(DEFAULT); 
 		
 		model = new HBox(minus, box, plus);
 		model.setAlignment(Pos.CENTER);

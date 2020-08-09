@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import javafx.stage.Screen;
 
 import javafx.geometry.Rectangle2D;
-import javafx.geometry.Insets;
 
 import javafx.scene.Scene;
 import javafx.scene.ImageCursor;
@@ -33,6 +32,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 import javafx.scene.paint.Color;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Tooltip;
@@ -60,7 +60,10 @@ public class CanvasDrawTest extends Application {
 	WeightBox weight;
 	ColorPicker picker;
 	ToggleButton sketch, erase;
+	Button clear;
 	ImageCursor sketchCursor, eraseCursor;
+	
+	public boolean isErase = false;
 	
 	@Override
 	public void start(Stage stage) {
@@ -73,7 +76,7 @@ public class CanvasDrawTest extends Application {
 		context = canvas.getGraphicsContext2D();
 		
 		weight = new WeightBox(30);
-		picker = new ColorPicker();
+		picker = new ColorPicker(Color.BLACK);
 		
 		sketch = new ToggleButton();
 		sketch.setTooltip(new Tooltip("Sketch"));
@@ -100,12 +103,15 @@ public class CanvasDrawTest extends Application {
 			
 			erase.setGraphic(eraseIcon);
 			
+			Image sketchImage = new Image(getClass().getResource(
+					"/IMAGE/sketchCursor.png").toURI().toString());
 			
-			sketchCursor = new ImageCursor(new Image(getClass().getResource(
-					"/IMAGE/sketchCursor.png").toURI().toString()), CURSOR_SIZE, CURSOR_SIZE);
+			Image eraseImage = new Image(getClass().getResource(
+					"/IMAGE/eraseCursor.png").toURI().toString());
 			
-			eraseCursor = new ImageCursor(new Image(getClass().getResource(
-					"/IMAGE/eraseCursor.png").toURI().toString()), CURSOR_SIZE, CURSOR_SIZE);
+			sketchCursor = new ImageCursor(sketchImage, 0, sketchImage.getHeight());
+			
+			eraseCursor = new ImageCursor(eraseImage, 0, eraseImage.getHeight());
 			
 			
 		} catch (URISyntaxException e) {
@@ -121,6 +127,7 @@ public class CanvasDrawTest extends Application {
 			picker.setVisible(true);
 			canvas.setCursor(sketchCursor);
 			
+			isErase = false;
 			e.consume();
 		});
 		
@@ -129,18 +136,29 @@ public class CanvasDrawTest extends Application {
 			picker.setVisible(false);
 			canvas.setCursor(eraseCursor);
 			
+			isErase = true;
 			e.consume();
 		});
 		
 		weight.currentProperty().addListener((observable, oldValue, newValue) -> {
 			context.setLineWidth(newValue.doubleValue());
+			System.out.println(context.getLineWidth());
 		});
 		
 		picker.setOnAction(e -> {
 			context.setStroke(picker.getValue());
 		});
 		
-		toolmenu = new FlowPane(sketch, erase, weight.getModel(), picker);
+		context.setStroke(picker.getValue());
+		context.setLineWidth(weight.getCurrent());
+		
+		clear = new Button("Clear");
+		clear.setOnAction(e -> {
+			context.clearRect(0,  0, canvas.getWidth(), canvas.getHeight());
+			e.consume();
+		});
+		
+		toolmenu = new FlowPane(sketch, erase, weight.getModel(), picker, clear);
 		root.setBottom(toolmenu);
 		
 		canvas.setOnMousePressed(e -> {
@@ -154,22 +172,28 @@ public class CanvasDrawTest extends Application {
 		
 		canvas.setOnMouseDragged(e -> {
 			context.lineTo(e.getX(), e.getY());
-			context.stroke();
+			
+			if (isErase) {
+				context.clearRect(e.getX(), e.getY(), context.getLineWidth(), context.getLineWidth());
+			} else {
+				context.stroke();
+			}
 			
 			e.consume();
 		});
+		
 		
 		/*canvasStack = new StackPane(canvas);
 		canvasStack.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 		canvasStack.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0),
 				CornerRadii.EMPTY, Insets.EMPTY)));
 		StackPane.setMargin(canvas, new Insets(2.0));*/
-		region = new Region();
-		region.setPrefSize(CANVAS_WIDTH + OFFSET, CANVAS_HEIGHT + OFFSET);
-		region.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, 
-				CornerRadii.EMPTY, BorderWidths.FULL)));
 		
-		stack = new StackPane(region, canvas);
+		
+		stack = new StackPane(canvas);
+		stack.setMaxSize(CANVAS_WIDTH + OFFSET, CANVAS_HEIGHT + OFFSET);
+		stack.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, 
+				CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		
 		root.setCenter(stack);
 		
