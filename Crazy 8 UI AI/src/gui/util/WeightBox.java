@@ -13,6 +13,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Button;
 
+//TODO: Set a default weight if none entered
+//TODO: Remove items OR maxSize attribute
 public class WeightBox {
 
 	private final HBox model;
@@ -30,6 +32,7 @@ public class WeightBox {
 		current = new ReadOnlyIntegerWrapper();
 		
 		box = new ComboBox<>();
+		//Setting these int items does not make sense
 		box.getItems().addAll(6, 8, 10, 11, 12, 14, 18, 24, 36, 48);
 		box.setEditable(true);
 		

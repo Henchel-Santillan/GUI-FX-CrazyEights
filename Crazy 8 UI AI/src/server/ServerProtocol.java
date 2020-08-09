@@ -16,7 +16,25 @@ public class ServerProtocol {
 		}
 	}
 	
+	private State state;
+	
+	public ServerProtocol() {
+		state = State.WAITING;
+	}
+	
+	public ServerProtocol(State state) {
+		this.state = state;
+	}
+	
 	public void process(String input) {
 		
+		switch (state) {
+			case WAITING:
+			case SENT:
+			case UNKNOWN:
+			default: 
+				System.err.println("Unexpected input.");
+				break;
+		}
 	}
 }
