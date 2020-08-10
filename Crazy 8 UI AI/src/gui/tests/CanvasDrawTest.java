@@ -40,6 +40,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+//TODO: Canvas image upload + download test
 public class CanvasDrawTest extends Application {
 	
 	public static final int CANVAS_WIDTH = 800;
