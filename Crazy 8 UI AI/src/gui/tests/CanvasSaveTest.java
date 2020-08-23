@@ -39,20 +39,22 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Label;
+import javafx.scene.control.ChoiceBox;
 
-import javafx.embed.swing.SwingFXUtils;
-import javax.imageio.ImageIO;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 
 import javafx.scene.paint.Color;
 
+//TODO: ImportImage --> resize to fit aspect ratio of canvas, if dimensions are larger
+//TODO: ResizableImage class in gui.util
+//TODO: HistoryManager
 public class CanvasSaveTest extends Application {
 	
 	public String projectname = "Untitled";
+	public static final double OFFSET = 2.0;
 	
 	Rectangle2D screen;
 	Scene scene;
@@ -67,6 +69,8 @@ public class CanvasSaveTest extends Application {
 	MenuItem save, saveas, importImage;
 	Label label;
 	ToggleSwitch toggle;
+	
+	ChoiceBox<String> extensionFilter;
 	
 	@Override
 	public void start(Stage stage) {
@@ -88,6 +92,10 @@ public class CanvasSaveTest extends Application {
 		label = new Label("Context save: ");
 		toggle = new ToggleSwitch(80.0d);
 		
+		extensionFilter = new ChoiceBox<>();
+		extensionFilter.getItems().addAll("png", "jpg", "gif", "jpeg");
+		extensionFilter.setValue(extensionFilter.getItems().get(0));
+		
 		save = new MenuItem("Save");
 		save.setOnAction(e -> {
 			
@@ -95,13 +103,21 @@ public class CanvasSaveTest extends Application {
 			File file = new File(projectname);
 			
 			if (file.exists() && !file.isDirectory()) {
-				//TODO: Save operation on file as found in saveas
+				
+				transfer(file, canvas, extensionFilter.getValue());
+				
 			} else {
+				
 				FileChooser chooser = new FileChooser();
 				chooser.setTitle("Save");
-				chooser.showSaveDialog(stage);
 				
-				//Save operation on file as found in saveas with added check
+				File chosen = chooser.showSaveDialog(stage);
+				
+				transfer(chosen, canvas, extensionFilter.getValue());
+				
+				if (toggle.isSelected()) {
+					context.save();
+				}
 			}
 			
 			e.consume();
@@ -113,31 +129,13 @@ public class CanvasSaveTest extends Application {
 			chooser.setTitle("Save As");
 		
 			chooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Downloads/"));
-			chooser.setInitialFileName("project.png");
+			chooser.setInitialFileName(projectname + "." + extensionFilter.getValue());
 			
 			//TODO: check if chosen is a directory
 			File chosen = chooser.showSaveDialog(stage);
 			
 			if (chosen != null) {
-				try {
-					SnapshotParameters snaps = new SnapshotParameters();
-					snaps.setFill(Color.TRANSPARENT);
-					
-					BufferedImage image = SwingFXUtils.fromFXImage(canvas.snapshot(snaps, null), null);
-					BufferedImage imagergb = new BufferedImage(image.getWidth(), image.getHeight(), 
-							BufferedImage.OPAQUE);
-					Graphics2D graphics = imagergb.createGraphics();
-					graphics.drawImage(image, 0, 0, null);
-					
-					ImageIO.write(imagergb, "png", chosen);
-					/*WritableImage writable = canvas.snapshot(snaps, new WritableImage(
-							(int) canvas.getWidth(), (int) canvas.getHeight()));
-					RenderedImage image = SwingFXUtils.fromFXImage(writable, null);
-					ImageIO.write(image, "png", chosen);*/
-					
-				} catch (IOException ex) {
-					Logger.getLogger(CanvasSaveTest.class.getName()).log(Level.SEVERE, null, ex);
-				}
+				transfer(chosen, canvas, extensionFilter.getValue());
 				
 				if (toggle.isSelected()) {
 					context.save();
@@ -156,9 +154,10 @@ public class CanvasSaveTest extends Application {
 			File chosen = chooser.showOpenDialog(stage);
 			
 			if (chosen != null) {
+				
 				context.drawImage(new Image(chosen.toURI().toString()), 0, 0);
 			}
-			
+				
 			e.consume();
 		});
 		
@@ -167,7 +166,7 @@ public class CanvasSaveTest extends Application {
 		
 		bar = new MenuBar(file);
 		
-		ribbon = new HBox(bar, label, toggle.getModel());
+		ribbon = new HBox(bar, label, toggle.getModel(), extensionFilter);
 		root.setTop(ribbon);
 		
 		stage.setScene(scene);
@@ -177,6 +176,29 @@ public class CanvasSaveTest extends Application {
 
 	public static void main(String[] args) {
 		launch(args);
+	}
+	
+	private void transfer(File target, Canvas canvas, String extension) {
+		try {
+			SnapshotParameters snaps = new SnapshotParameters();
+			snaps.setFill(Color.TRANSPARENT);
+			
+			BufferedImage image = SwingFXUtils.fromFXImage(canvas.snapshot(snaps, null), null);
+			BufferedImage imagergb = new BufferedImage(image.getWidth(), image.getHeight(), 
+					BufferedImage.OPAQUE);
+			Graphics2D graphics = imagergb.createGraphics();
+			graphics.drawImage(image, 0, 0, null);
+			
+			//TODO: can have a string choicebox to change extension
+			ImageIO.write(imagergb, extension, target);
+			/*WritableImage writable = canvas.snapshot(snaps, new WritableImage(
+					(int) canvas.getWidth(), (int) canvas.getHeight()));
+			RenderedImage image = SwingFXUtils.fromFXImage(writable, null);
+			ImageIO.write(image, "png", chosen);*/
+			
+		} catch (IOException ex) {
+			Logger.getLogger(CanvasSaveTest.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 
 }

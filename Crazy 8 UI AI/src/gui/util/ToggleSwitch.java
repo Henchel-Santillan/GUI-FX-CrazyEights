@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 
+//TODO: Set default state (i.e. set to false and not unknown first
 public class ToggleSwitch {
 
 	private final HBox model;
